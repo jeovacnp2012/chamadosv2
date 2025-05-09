@@ -4,10 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AddressResource\Pages;
 use App\Filament\Resources\AddressResource\RelationManagers;
+use App\Helpers\Formatter;
 use App\Models\Address;
+use App\Support\ValidationRules;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -19,7 +22,6 @@ use Illuminate\Support\Facades\Http;
 class AddressResource extends Resource
 {
     protected static ?string $model = Address::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
     protected static ?string $navigationLabel = 'Endereços';
     protected static ?string $modelLabel = 'Endereço';
@@ -32,13 +34,18 @@ class AddressResource extends Resource
                 TextInput::make('postal_code')->label('CEP')
                     ->mask('99999-999')
                     ->required()
+                    ->formatStateUsing(function ($state) {
+                        if (!$state || strlen($state) !== 8) {
+                            return $state;
+                        }
+                        return preg_replace('/^(\d{5})(\d{3})$/', '$1-$2', $state);
+                    })
                     ->live(debounce: 500)
                     ->afterStateUpdated(function ($state, callable $set) {
                         $cep = preg_replace('/[^0-9]/', '', $state);
                         if (strlen($cep) !== 8) {
                             return;
                         }
-
                         $response = Http::get("https://viacep.com.br/ws/{$cep}/json/");
                         if ($response->successful() && !isset($response['erro'])) {
                             $data = $response->json();
@@ -68,11 +75,29 @@ class AddressResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('postal_code')->label('CEP'),
-                TextColumn::make('street')->label('Rua')->searchable(),
-                TextColumn::make('neighborhood')->label('Bairro'),
-                TextColumn::make('city')->label('Cidade'),
-                TextColumn::make('state')->label('UF'),
+                TextColumn::make('postal_code')
+                    ->label('CEP')
+                    ->sortable()
+                    ->searchable()
+                    ->formatStateUsing(fn ($state) => Formatter::cep($state))
+                    ->formatStateUsing(fn($state) => ValidationRules::formatCep($state))
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('street')
+                    ->label('Rua')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('neighborhood')
+                    ->label('Bairro')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('city')
+                    ->label('Cidade')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('state')
+                    ->label('UF')
+                    ->sortable()
+                    ->searchable(),
             ])->defaultSort('postal_code')
             ->filters([
                 //

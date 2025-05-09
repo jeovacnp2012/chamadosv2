@@ -9,11 +9,14 @@ use Filament\Resources\Pages\EditRecord;
 class EditCompany extends EditRecord
 {
     protected static string $resource = CompanyResource::class;
-
     protected function getHeaderActions(): array
     {
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+    protected function shouldDisableForm(): bool
+    {
+        return (bool) $this->form->getState()['cnpj_is_duplicate'] ?? false;
     }
 }
