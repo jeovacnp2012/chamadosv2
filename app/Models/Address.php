@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Contracts\BelongsToCompanyInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Address extends Model
+class Address extends Model implements BelongsToCompanyInterface
 {
     protected $fillable = [
         'postal_code',
@@ -14,6 +16,7 @@ class Address extends Model
         'neighborhood',
         'city',
         'state',
+        'company_id',
     ];
     public function getFormattedAddressAttribute(): string
     {
@@ -21,4 +24,9 @@ class Address extends Model
             ($this->number ? ", {$this->number}" : "") .
             " - {$this->neighborhood} - {$this->city}/{$this->state}";
     }
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Company::class);
+    }
+
 }
