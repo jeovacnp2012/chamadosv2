@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserResource extends Resource
 {
@@ -101,17 +102,10 @@ class UserResource extends Resource
         ];
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
-        ];
-    }
     public static function canViewAny(): bool
     {
         return auth()->user()->can('view user');
+//        return true;
     }
 
     public static function canCreate(): bool
@@ -128,4 +122,5 @@ class UserResource extends Resource
     {
         return auth()->user()->can('delete user');
     }
+
 }

@@ -16,6 +16,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Http;
 
@@ -127,4 +128,24 @@ class AddressResource extends Resource
             'edit' => Pages\EditAddress::route('/{record}/edit'),
         ];
     }
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view address');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create address');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('update address');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('delete address');
+    }
+
 }

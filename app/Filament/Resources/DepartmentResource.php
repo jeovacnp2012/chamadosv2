@@ -18,6 +18,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -149,4 +150,24 @@ class DepartmentResource extends Resource
             'edit' => Pages\EditDepartment::route('/{record}/edit'),
         ];
     }
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view department');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create department');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('update department');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('delete department');
+    }
+
 }

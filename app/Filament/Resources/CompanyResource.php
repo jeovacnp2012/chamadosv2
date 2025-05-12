@@ -20,6 +20,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
@@ -221,5 +222,24 @@ class CompanyResource extends Resource
             'create' => Pages\CreateCompany::route('/create'),
             'edit' => Pages\EditCompany::route('/{record}/edit'),
         ];
+    }
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view user');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create user');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('update user');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('delete user');
     }
 }

@@ -12,14 +12,10 @@ class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Acoes aplicadas a cada resource
         $actions = ['view', 'create', 'update', 'delete'];
-
-        // Caminho dos resources
         $resourcePath = app_path('Filament/Resources');
-
-        // Detectar arquivos de resources
         $files = File::allFiles($resourcePath);
+        $permissionsCriadas = [];
 
         foreach ($files as $file) {
             $name = $file->getFilenameWithoutExtension();
@@ -27,13 +23,20 @@ class PermissionSeeder extends Seeder
                 $resource = Str::kebab(str_replace('Resource', '', $name));
 
                 foreach ($actions as $action) {
-                    Permission::firstOrCreate(['name' => "$action $resource"]);
+                    $permissionName = "$action $resource";
+                    Permission::firstOrCreate(['name' => $permissionName]);
+                    $permissionsCriadas[] = $permissionName;
                 }
             }
         }
 
-        // Atribuir todas as permissoes ao Super Admin
         $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
         $superAdmin->syncPermissions(Permission::all());
+
+        // Exibir lista de permissoes criadas
+        echo "Permissões criadas:\n";
+        foreach ($permissionsCriadas as $p) {
+            echo "- $p\n";
+        }
     }
 }
