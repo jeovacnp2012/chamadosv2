@@ -2,6 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
+
+
+
+
+
+
+
 use App\Filament\Resources\RoleResource\Pages;
 use Filament\Forms\Form;
 use Filament\Tables\Actions\BulkActionGroup;
@@ -10,13 +18,20 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Role;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 
 class RoleResource extends Resource
 {
+    use ChecksResourcePermission;
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static ?string $model = Role::class;
+    protected static ?string $navigationGroup = 'Configurações';
 
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
     protected static ?string $navigationLabel = 'Papéis de Acesso';
@@ -79,4 +94,23 @@ class RoleResource extends Resource
             'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
     }
+//    public static function canViewAny(): bool
+//    {
+//        return auth()->user()->can('view role');
+//    }
+//
+//    public static function canCreate(): bool
+//    {
+//        return auth()->user()->can('create role');
+//    }
+//
+//    public static function canEdit(Model $record): bool
+//    {
+//        return auth()->user()->can('update role');
+//    }
+//
+//    public static function canDelete(Model $record): bool
+//    {
+//        return auth()->user()->can('delete role');
+//    }
 }

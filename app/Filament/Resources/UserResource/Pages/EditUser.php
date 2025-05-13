@@ -8,8 +8,11 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditUser extends EditRecord
 {
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static string $resource = UserResource::class;
-
     protected function getHeaderActions(): array
     {
         return [

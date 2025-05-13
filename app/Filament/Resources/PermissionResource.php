@@ -2,6 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
+
+
+
+
+
+
+
 use App\Filament\Resources\PermissionResource\Pages;
 use App\Filament\Resources\PermissionResource\RelationManagers;
 use Filament\Forms\Components\TextInput;
@@ -12,12 +20,18 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Permission;
 
 class PermissionResource extends Resource
 {
+    use ChecksResourcePermission;
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static ?string $model = Permission::class;
-
+    protected static ?string $navigationGroup = 'Configurações';
     protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
     protected static ?string $navigationLabel = 'Permissões';
     protected static ?string $modelLabel = 'Permissão';
@@ -70,4 +84,23 @@ class PermissionResource extends Resource
             'edit' => Pages\EditPermission::route('/{record}/edit'),
         ];
     }
+//    public static function canViewAny(): bool
+//    {
+//        return auth()->user()->can('view permission');
+//    }
+//
+//    public static function canCreate(): bool
+//    {
+//        return auth()->user()->can('create permission');
+//    }
+//
+//    public static function canEdit(Model $record): bool
+//    {
+//        return auth()->user()->can('update permission');
+//    }
+//
+//    public static function canDelete(Model $record): bool
+//    {
+//        return auth()->user()->can('delete permission');
+//    }
 }

@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Contracts\BelongsToCompanyInterface;
-use App\Traits\BelongsToCompany;
-use App\Traits\HasCompanyScope;
+use App\Traits\ChecksResourcePermission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -16,7 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements BelongsToCompanyInterface
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, Authorizable;
+    use HasFactory, Notifiable, ChecksResourcePermission, HasRoles;
 
     /**
      * The attributes that are mass assignable.

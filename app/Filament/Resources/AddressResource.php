@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
 use App\Filament\Resources\AddressResource\Pages;
 use App\Filament\Resources\AddressResource\RelationManagers;
 use App\Helpers\Formatter;
 use App\Models\Address;
 use App\Support\ValidationRules;
-use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -15,14 +15,17 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Http;
 
 class AddressResource extends Resource
 {
+    use ChecksResourcePermission;
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static ?string $model = Address::class;
+    protected static ?string $navigationGroup = 'Cadastro';
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
     protected static ?string $navigationLabel = 'Endereços';
     protected static ?string $modelLabel = 'Endereço';
@@ -128,24 +131,24 @@ class AddressResource extends Resource
             'edit' => Pages\EditAddress::route('/{record}/edit'),
         ];
     }
-    public static function canViewAny(): bool
-    {
-        return auth()->user()->can('view address');
-    }
-
-    public static function canCreate(): bool
-    {
-        return auth()->user()->can('create address');
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return auth()->user()->can('update address');
-    }
-
-    public static function canDelete(Model $record): bool
-    {
-        return auth()->user()->can('delete address');
-    }
+//    public static function canViewAny(): bool
+//    {
+//        return auth()->user()->can('view address');
+//    }
+//
+//    public static function canCreate(): bool
+//    {
+//        return auth()->user()->can('create address');
+//    }
+//
+//    public static function canEdit(Model $record): bool
+//    {
+//        return auth()->user()->can('update address');
+//    }
+//
+//    public static function canDelete(Model $record): bool
+//    {
+//        return auth()->user()->can('delete address');
+//    }
 
 }

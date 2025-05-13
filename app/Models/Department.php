@@ -7,6 +7,7 @@ use App\Traits\BelongsToCompany;
 use App\Traits\HasCompanyScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model implements BelongsToCompanyInterface
 {
@@ -25,9 +26,12 @@ class Department extends Model implements BelongsToCompanyInterface
     {
         return $this->belongsTo(Company::class);
     }
-
     public function address(): BelongsTo
     {
         return $this->belongsTo(Address::class);
+    }
+    public function sectors(): HasMany
+    {
+        return $this->hasMany(Sector::class);
     }
 }

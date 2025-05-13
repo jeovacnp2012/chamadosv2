@@ -2,13 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
+
 use App\Filament\Resources\CompanyResource\Pages;
 use App\Filament\Resources\CompanyResource\RelationManagers;
-use App\Helpers\Formatter;
 use App\Models\Company;
 use App\Support\ValidationRules;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -20,19 +19,28 @@ use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class CompanyResource extends Resource
 {
+    use ChecksResourcePermission;
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static ?string $model = Company::class;
+    protected static ?string $navigationGroup = 'Cadastro';
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?string $navigationLabel = 'Empresas';
     protected static ?string $modelLabel = 'Empresa';
     protected static ?string $pluralModelLabel = 'Empresas';
-
+    public static function canViewAny(): bool
+    {
+        Log::info('🔍 canViewAny chamado em: ' . static::class);
+        return self::checkPermission('view');
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -170,30 +178,6 @@ class CompanyResource extends Resource
                 TextColumn::make('phone')
                     ->label('Celular')
                     ->formatStateUsing(fn($state) => ValidationRules::formatPhone($state)),
-//                    ->formatStateUsing(function ($state) {
-//                        if (!$state) {
-//                            return null;
-//                        }
-//                        $length = strlen($state);
-//                        if ($length === 11) {
-//                            // Celular: (99) 99999-9999
-//                            return sprintf('(%s) %s-%s',
-//                                substr($state, 0, 2),
-//                                substr($state, 2, 5),
-//                                substr($state, 7)
-//                            );
-//                        }
-//                        if ($length === 10) {
-//                            // Fixo: (99) 9999-9999
-//                            return sprintf('(%s) %s-%s',
-//                                substr($state, 0, 2),
-//                                substr($state, 2, 4),
-//                                substr($state, 6)
-//                            );
-//                        }
-//                        // Outro: exibe sem formatação
-//                        return $state;
-//                    }),
             ])->defaultSort('corporate_name')
             ->filters([
                 //
@@ -223,23 +207,23 @@ class CompanyResource extends Resource
             'edit' => Pages\EditCompany::route('/{record}/edit'),
         ];
     }
-    public static function canViewAny(): bool
-    {
-        return auth()->user()->can('view user');
-    }
-
-    public static function canCreate(): bool
-    {
-        return auth()->user()->can('create user');
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return auth()->user()->can('update user');
-    }
-
-    public static function canDelete(Model $record): bool
-    {
-        return auth()->user()->can('delete user');
-    }
+//    public static function canViewAny(): bool
+//    {
+//        return auth()->user()->can('view company');
+//    }
+//
+//    public static function canCreate(): bool
+//    {
+//        return auth()->user()->can('create company');
+//    }
+//
+//    public static function canEdit(Model $record): bool
+//    {
+//        return auth()->user()->can('update company');
+//    }
+//
+//    public static function canDelete(Model $record): bool
+//    {
+//        return auth()->user()->can('delete company');
+//    }
 }

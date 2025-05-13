@@ -2,6 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
+
+
+
+
+
+
+
 use App\Filament\Resources\DepartmentResource\Pages;
 use App\Filament\Resources\DepartmentResource\RelationManagers;
 use App\Models\Department;
@@ -24,8 +32,13 @@ use Illuminate\Support\Facades\Http;
 
 class DepartmentResource extends Resource
 {
+    use ChecksResourcePermission;
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static ?string $model = Department::class;
-
+    protected static ?string $navigationGroup = 'Cadastro';
     protected static ?string $navigationLabel = 'Departamentos';
     protected static ?string $pluralModelLabel = 'Departamentos';
     protected static ?string $modelLabel = 'Departamento';
@@ -48,7 +61,8 @@ class DepartmentResource extends Resource
                         ->dehydrateStateUsing(fn($state) => strtoupper($state)),
 
                     TextInput::make('contact_person')
-                        ->label('Responsável'),
+                        ->label('Responsável')
+                        ->dehydrateStateUsing(fn ($state) => strtoupper($state)),
 
                     TextInput::make('cell_phone')
                         ->label('Celular')
@@ -155,19 +169,19 @@ class DepartmentResource extends Resource
         return auth()->user()->can('view department');
     }
 
-    public static function canCreate(): bool
-    {
-        return auth()->user()->can('create department');
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return auth()->user()->can('update department');
-    }
-
-    public static function canDelete(Model $record): bool
-    {
-        return auth()->user()->can('delete department');
-    }
+//    public static function canCreate(): bool
+//    {
+//        return auth()->user()->can('create department');
+//    }
+//
+//    public static function canEdit(Model $record): bool
+//    {
+//        return auth()->user()->can('update department');
+//    }
+//
+//    public static function canDelete(Model $record): bool
+//    {
+//        return auth()->user()->can('delete department');
+//    }
 
 }

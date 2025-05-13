@@ -2,10 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
+
+
+
+
+
+
+
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -18,15 +27,34 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
+    use ChecksResourcePermission;
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static ?string $model = User::class;
+    protected static ?string $navigationGroup = 'Configurações';
     protected static ?string $navigationLabel = 'Usuários';
     protected static ?string $pluralModelLabel = 'Usuários';
     protected static ?string $modelLabel = 'Usuário';
     protected static ?string $navigationIcon = 'heroicon-o-user';
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        // Se o usuário logado NÃO for super admin, filtra os super admins
+        if (! auth()->user()->hasRole('Super Admin')) {
+            $query->whereDoesntHave('roles', fn($q) =>
+            $q->where('name', 'Super Admin')
+            );
+        }
+
+        return $query;
+    }
 
     public static function form(Form $form): Form
     {
@@ -37,11 +65,13 @@ class UserResource extends Resource
                     ->schema([
                         TextInput::make('name')
                             ->label('Nome')
+                            ->dehydrateStateUsing(fn ($state) => strtoupper($state))
                             ->required(),
 
                         TextInput::make('email')
                             ->label('E-mail')
                             ->required()
+                            ->dehydrateStateUsing(fn ($state) => strtolower($state))
                             ->email()
                             ->unique(ignoreRecord: true),
 
@@ -56,19 +86,35 @@ class UserResource extends Resource
                 Section::make('Acesso e Segurança')
                     ->columns(['sm' => 1, 'md' => 2])
                     ->schema([
-                        Select::make('roles')
-                            ->label('Perfil de Acesso')
-                            ->multiple()
-                            ->relationship('roles', 'name')
-                            ->preload()
-                            ->searchable(),
+                        //Se a escolha for checkbox
+                        CheckboxList::make('roles')
+                            ->label('Papéis')
+                            ->options(function () {
+                                $query = Role::query();
 
-//                        Select::make('permissions')
-//                            ->label('Permissões Individuais')
+                                if (! auth()->user()->hasRole('Super Admin')) {
+                                    $query->where('name', '!=', 'Super Admin');
+                                }
+
+                                return $query->pluck('name', 'name');
+                            })
+                            ->columns(2)
+                            ->required(),
+                        //Se a escolha for Select multiplos
+//                        Select::make('roles')
+//                            ->label('Papéis')
 //                            ->multiple()
-//                            ->relationship('permissions', 'name')
-//                            ->preload()
-//                            ->searchable(),
+//                            ->options(function () {
+//                                $query = Role::query();
+//
+//                                if (! auth()->user()->hasRole('Super Admin')) {
+//                                    $query->where('name', '!=', 'Super Admin');
+//                                }
+//
+//                                return $query->pluck('name', 'name');
+//                            })
+//                            ->searchable()
+//                            ->required(),
                     ]),
             ]);
     }
@@ -102,25 +148,31 @@ class UserResource extends Resource
         ];
     }
 
-    public static function canViewAny(): bool
+    public static function getPages(): array
     {
-        return auth()->user()->can('view user');
-//        return true;
+        return [
+            'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
+        ];
+    }
+    public static function canEdit($record): bool
+    {
+        return ! $record->hasRole('Super Admin') || auth()->user()->hasRole('Super Admin');
     }
 
-    public static function canCreate(): bool
+    public static function canDelete($record): bool
     {
-        return auth()->user()->can('create user');
+        $user = auth()->user();
+        // Nenhum usuário comum pode deletar a si mesmo
+        if ($user->id === $record->id && ! $user->hasRole('Super Admin')) {
+            return false;
+        }
+        // Super Admin pode tentar deletar a si mesmo (será bloqueado se for o único na execução)
+        return true;
     }
-
-    public static function canEdit(Model $record): bool
+    public static function canView($record): bool
     {
-        return auth()->user()->can('update user');
+        return ! $record->hasRole('Super Admin') || auth()->user()->hasRole('Super Admin');
     }
-
-    public static function canDelete(Model $record): bool
-    {
-        return auth()->user()->can('delete user');
-    }
-
 }
