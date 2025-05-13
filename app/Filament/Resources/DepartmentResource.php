@@ -23,8 +23,13 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -139,16 +144,53 @@ class DepartmentResource extends Resource
 
     public static function table(Tables\Table $table): Tables\Table
     {
+        // Chama a função e armazena na variável
+        $settings = responsiveColumnToggle(true, false);
         return $table
             ->columns([
-                TextColumn::make('name')->label('Departamento')->searchable(),
-                TextColumn::make('company.corporate_name')->label('Empresa'),
-                TextColumn::make('contact_person')->label('Responsável'),
-                TextColumn::make('cell_phone')->label('Celular')
-                    ->formatStateUsing(fn($state) => \App\Support\ValidationRules::formatPhone($state)),
-                IconColumn::make('is_active')->label('Ativo')->boolean(),
+                TextColumn::make('name')
+                    ->label('Departamento')
+                    ->searchable(),
+                TextColumn::make('company.corporate_name')
+                    ->label('Empresa')
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes']),
+                TextColumn::make('contact_person')
+                    ->label('Responsável')
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('cell_phone')
+                    ->label('Celular')
+                    ->formatStateUsing(fn($state) => \App\Support\ValidationRules::formatPhone($state))
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: true),
+                IconColumn::make('is_active')
+                    ->label('Ativo')
+                    ->boolean()
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('name');
+            ->defaultSort('name')
+            ->filters([
+                TernaryFilter::make('is_active')->label('Ativo')->default(true),
+            ])
+            ->actions([
+                ActionGroup::make([
+//                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
+                    EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
+                    DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
+                ])
+                    ->button()
+                    ->label('Ações'),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getRelations(): array
@@ -164,10 +206,10 @@ class DepartmentResource extends Resource
             'edit' => Pages\EditDepartment::route('/{record}/edit'),
         ];
     }
-    public static function canViewAny(): bool
-    {
-        return auth()->user()->can('view department');
-    }
+//    public static function canViewAny(): bool
+//    {
+//        return auth()->user()->can('view department');
+//    }
 
 //    public static function canCreate(): bool
 //    {

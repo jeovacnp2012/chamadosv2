@@ -14,6 +14,10 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
@@ -140,22 +144,56 @@ class SectorResource extends Resource
 
     public static function table(Table $table): Table
     {
+        // Chama a função e armazena na variável
+        $settings = responsiveColumnToggle();
         return $table
             ->columns([
-                TextColumn::make('name')->label('Nome')->searchable(),
-                TextColumn::make('department.name')->label('Departamento'),
-                TextColumn::make('address.formatted_address')->label('Endereço'),
-                TextColumn::make('extension')->label('Ramal'),
-                TextColumn::make('cell_phone')->label('Celular'),
-                TextColumn::make('responsible')->label('Responsável'),
-                TextColumn::make('email')->label('Email'),
-                IconColumn::make('is_active')->label('Ativo')->boolean(),
+                TextColumn::make('name')
+                    ->label('Nome')
+                    ->searchable(),
+                TextColumn::make('department.name')
+                    ->label('Departamento')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('address.formatted_address')
+                    ->label('Endereço')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('extension')
+                    ->label('Ramal')
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: $settings['toggleable']),
+                TextColumn::make('cell_phone')
+                    ->label('Celular')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('responsible')
+                    ->label('Responsável')
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: $settings['toggleable']),
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: $settings['toggleable']),
+                IconColumn::make('is_active')
+                    ->label('Ativo')
+                    ->boolean()
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: $settings['toggleable']),
             ])
             ->filters([
-                TernaryFilter::make('is_active')->label('Ativo'),
+                TernaryFilter::make('is_active')->label('Ativo')->default(true),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
+                    EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
+                    DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
+                ])
+                    ->button()
+                    ->label('Ações'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -177,6 +215,7 @@ class SectorResource extends Resource
             'index' => Pages\ListSectors::route('/'),
             'create' => Pages\CreateSector::route('/create'),
             'edit' => Pages\EditSector::route('/{record}/edit'),
+            'view' => Pages\ViewSector::route('/{record}'), // 👈 Adicione esta linha
         ];
     }
 }

@@ -13,7 +13,11 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Http;
 
@@ -77,6 +81,8 @@ class AddressResource extends Resource
 
     public static function table(Table $table): Table
     {
+        // Chama a função e armazena na variável
+        $settings = responsiveColumnToggle();
         return $table
             ->columns([
                 TextColumn::make('postal_code')
@@ -97,17 +103,29 @@ class AddressResource extends Resource
                 TextColumn::make('city')
                     ->label('Cidade')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: $settings['toggleable']),
                 TextColumn::make('state')
                     ->label('UF')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->extraAttributes($settings['extraAttributes'])
+                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: $settings['toggleable']),
             ])->defaultSort('postal_code')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+//                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
+                    EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
+                    DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
+                ])
+                    ->button()
+                    ->label('Ações'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
