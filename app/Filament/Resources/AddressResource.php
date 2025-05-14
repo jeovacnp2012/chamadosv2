@@ -14,13 +14,16 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Http;
-
+// ✅ Adicionado para reconhecer a função global
+use function responsiveColumnToggle;
 class AddressResource extends Resource
 {
     use ChecksResourcePermission;
@@ -89,8 +92,8 @@ class AddressResource extends Resource
                     ->label('CEP')
                     ->sortable()
                     ->searchable()
-                    ->formatStateUsing(fn ($state) => Formatter::cep($state))
-                    ->formatStateUsing(fn($state) => ValidationRules::formatCep($state))
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('street')
                     ->label('Rua')
@@ -99,28 +102,30 @@ class AddressResource extends Resource
                 TextColumn::make('neighborhood')
                     ->label('Bairro')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: false)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: false)['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('city')
                     ->label('Cidade')
                     ->sortable()
                     ->searchable()
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
-                    ->toggleable(isToggledHiddenByDefault: $settings['toggleable']),
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('state')
                     ->label('UF')
                     ->sortable()
                     ->searchable()
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
-                    ->toggleable(isToggledHiddenByDefault: $settings['toggleable']),
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])->defaultSort('postal_code')
             ->filters([
                 //
             ])
             ->actions([
                 ActionGroup::make([
-//                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
                     EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
                     DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
                 ])
@@ -128,8 +133,8 @@ class AddressResource extends Resource
                     ->label('Ações'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

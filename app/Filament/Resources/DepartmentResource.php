@@ -153,24 +153,25 @@ class DepartmentResource extends Resource
                     ->searchable(),
                 TextColumn::make('company.corporate_name')
                     ->label('Empresa')
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes']),
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('contact_person')
                     ->label('Responsável')
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('cell_phone')
                     ->label('Celular')
                     ->formatStateUsing(fn($state) => \App\Support\ValidationRules::formatPhone($state))
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: false),
                 IconColumn::make('is_active')
                     ->label('Ativo')
                     ->boolean()
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('name')
@@ -179,7 +180,7 @@ class DepartmentResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
-//                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
+                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
                     EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
                     DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
                 ])
@@ -204,6 +205,7 @@ class DepartmentResource extends Resource
             'index' => Pages\ListDepartments::route('/'),
             'create' => Pages\CreateDepartment::route('/create'),
             'edit' => Pages\EditDepartment::route('/{record}/edit'),
+            'view' => Pages\ViewDepartament::route('/{record}'),
         ];
     }
 //    public static function canViewAny(): bool

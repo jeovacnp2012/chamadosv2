@@ -1,15 +1,15 @@
 <?php
-namespace App\Filament\Resources\SectorResource\Pages;
+namespace App\Filament\Resources\CompanyResource\Pages;
 
+use App\Filament\Resources\CompanyResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\Resources\SectorResource;
 
-class ViewSector extends ViewRecord
+class ViewCompany extends ViewRecord
 {
-    protected static string $resource = SectorResource::class;
+    protected static string $resource = CompanyResource::class;
     public function getHeaderActions(): array
     {
         return [

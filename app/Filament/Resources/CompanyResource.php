@@ -17,8 +17,11 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
@@ -26,7 +29,8 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
+// ✅ Adicionado para reconhecer a função global
+use function responsiveColumnToggle;
 class CompanyResource extends Resource
 {
     use ChecksResourcePermission;
@@ -154,9 +158,6 @@ class CompanyResource extends Resource
 
     public static function table(Table $table): Table
     {
-
-        // Chama a função e armazena na variável
-        $settings = responsiveColumnToggle();
         return $table
             ->columns([
                 TextColumn::make('corporate_name')
@@ -174,27 +175,29 @@ class CompanyResource extends Resource
                 TextColumn::make('trade_name')
                     ->label('Fantasia')
                     ->sortable()
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('cnpj')
                     ->label('CNPJ')
                     ->sortable()
                     ->formatStateUsing(fn($state) => ValidationRules::formatCnpj($state))
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 IconColumn::make('is_active')
                     ->label('Ativa')
                     ->boolean()
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('phone')
                     ->label('Celular')
                     ->formatStateUsing(fn($state) => ValidationRules::formatPhone($state))
-                    ->extraAttributes($settings['extraAttributes'])
-                    ->extraHeaderAttributes($settings['extraHeaderAttributes'])
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
                     ->toggleable(isToggledHiddenByDefault: true),
 
             ])->defaultSort('corporate_name')
@@ -203,7 +206,7 @@ class CompanyResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
-//                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
+                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
                     EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
                     DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
                 ])
@@ -211,8 +214,8 @@ class CompanyResource extends Resource
                     ->label('Ações'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -230,6 +233,7 @@ class CompanyResource extends Resource
             'index' => Pages\ListCompanies::route('/'),
             'create' => Pages\CreateCompany::route('/create'),
             'edit' => Pages\EditCompany::route('/{record}/edit'),
+            'view' => Pages\ViewCompany::route('/{record}'),
         ];
     }
 //    public static function canViewAny(): bool
