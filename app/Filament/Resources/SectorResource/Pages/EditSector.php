@@ -10,11 +10,8 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditSector extends EditRecord
 {
+    use ChecksResourcePermission;
 
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
     protected static string $resource = SectorResource::class;
 
     protected function getHeaderActions(): array

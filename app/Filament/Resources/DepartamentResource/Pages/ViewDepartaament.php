@@ -1,9 +1,9 @@
 <?php
-namespace App\Filament\Resources\DepartmentResource\Pages;
+namespace App\Filament\Resources\DepartamentResource\Pages;
 
 use App\Traits\ChecksResourcePermission;
 
-use App\Filament\Resources\DepartmentResource;
+use App\Filament\Resources\DepartamentResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -11,12 +11,9 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewDepartament extends ViewRecord
 {
+    use ChecksResourcePermission;
 
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
-    protected static string $resource = DepartmentResource::class;
+    protected static string $resource = DepartamentResource::class;
     public function getHeaderActions(): array
     {
         return [

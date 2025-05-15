@@ -13,7 +13,7 @@ class ApplyPermissionTraitCommand extends Command
     public function handle(): void
     {
         $resourcePath = app_path('Filament/Resources');
-        $traitUseLine = "use App\\Support\\ChecksResourcePermission;";
+        $traitUseLine = "use App\\Traits\\ChecksResourcePermission;";
 
         $files = File::allFiles($resourcePath);
         foreach ($files as $file) {

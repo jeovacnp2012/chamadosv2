@@ -29,11 +29,8 @@ use Illuminate\Support\Facades\Http;
 
 class SupplierResource extends Resource
 {
+    use ChecksResourcePermission;
 
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
     protected static ?string $model = Supplier::class;
     protected static ?string $navigationIcon = 'heroicon-o-wrench';
     protected static ?string $navigationGroup = 'Cadastro';

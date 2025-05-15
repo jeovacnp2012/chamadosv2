@@ -11,11 +11,8 @@ use App\Filament\Resources\SectorResource;
 
 class ViewSector extends ViewRecord
 {
+    use ChecksResourcePermission;
 
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
     protected static string $resource = SectorResource::class;
     public function getHeaderActions(): array
     {

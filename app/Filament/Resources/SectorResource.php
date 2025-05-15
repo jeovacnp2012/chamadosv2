@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
+
 use App\Filament\Resources\SectorResource\Pages;
 use App\Filament\Resources\SectorResource\RelationManagers;
 use App\Models\Sector;
 use App\Support\ValidationRules;
-use App\Traits\ChecksResourcePermission;
+
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -30,11 +32,6 @@ use Illuminate\Support\Facades\Http;
 
 class SectorResource extends Resource
 {
-
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
     use ChecksResourcePermission;
 
     protected static ?string $model = Sector::class;
@@ -58,9 +55,9 @@ class SectorResource extends Resource
                             ->label('Nome')
                             ->dehydrateStateUsing(fn ($state) => strtoupper($state))
                             ->required(),
-                        Select::make('department_id')
+                        Select::make('departament_id')
                             ->label('Departamento')
-                            ->relationship('department', 'name')
+                            ->relationship('departament', 'name')
                             ->required()
                             ->preload()
                             ->searchable(),
@@ -158,7 +155,7 @@ class SectorResource extends Resource
                         $extension = $record->extension;
                         $cell_phone = $record->cell_phone;
                         $responsable = $record->responsable;
-                        $department = $record->department?->name;
+                        $departament = $record->departament?->name;
                         $infos = [];
                         if ($extension) {
                             $infos[] = "<div class='text-sm text-gray-500'>📞 <span class='font-medium'>" . e($extension) . "</span></div>";
@@ -169,8 +166,8 @@ class SectorResource extends Resource
                         if ($responsable) {
                             $infos[] = "<div class='text-sm text-gray-500'>👤 <span class='font-medium'>" . e($responsable) . "</span></div>";
                         }
-                        if ($department) {
-                            $infos[] = "<div class='text-sm text-gray-500'>🏢 <span class='font-medium'>" . e($department) . "</span></div>";
+                        if ($departament) {
+                            $infos[] = "<div class='text-sm text-gray-500'>🏢 <span class='font-medium'>" . e($departament) . "</span></div>";
                         }
                         return "<div class='leading-tight'>
                             <div class='font-semibold text-gray-900'>" . e($state) . "</div>
@@ -179,7 +176,7 @@ class SectorResource extends Resource
                     })
                     ->html()
                     ->searchable(),
-                TextColumn::make('department.name')
+                TextColumn::make('departament.name')
                     ->label('Departamento')
                     ->sortable()
                     ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])

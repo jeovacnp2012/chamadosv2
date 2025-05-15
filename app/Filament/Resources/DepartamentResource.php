@@ -4,15 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Traits\ChecksResourcePermission;
 
-
-
-
-
-
-
-use App\Filament\Resources\DepartmentResource\Pages;
-use App\Filament\Resources\DepartmentResource\RelationManagers;
-use App\Models\Department;
+use App\Filament\Resources\DepartamentResource\Pages;
+use App\Filament\Resources\DepartamentResource\RelationManagers;
+use App\Models\Departament;
 use App\Support\ValidationRules;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
@@ -31,18 +25,14 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
-class DepartmentResource extends Resource
+class DepartamentResource extends Resource
 {
     use ChecksResourcePermission;
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
-    protected static ?string $model = Department::class;
+
+    protected static ?string $model = Departament::class;
     protected static ?string $navigationGroup = 'Cadastro';
     protected static ?string $navigationLabel = 'Departamentos';
     protected static ?string $pluralModelLabel = 'Departamentos';
@@ -202,9 +192,9 @@ class DepartmentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDepartments::route('/'),
-            'create' => Pages\CreateDepartment::route('/create'),
-            'edit' => Pages\EditDepartment::route('/{record}/edit'),
+            'index' => Pages\ListDepartaments::route('/'),
+            'create' => Pages\CreateDepartament::route('/create'),
+            'edit' => Pages\EditDepartament::route('/{record}/edit'),
             'view' => Pages\ViewDepartament::route('/{record}'),
         ];
     }

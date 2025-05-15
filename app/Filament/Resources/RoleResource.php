@@ -4,12 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Traits\ChecksResourcePermission;
 
-
-
-
-
-
-
 use App\Filament\Resources\RoleResource\Pages;
 use Filament\Forms\Form;
 use Filament\Tables\Actions\BulkActionGroup;
@@ -26,10 +20,7 @@ use Filament\Forms\Components\Select;
 class RoleResource extends Resource
 {
     use ChecksResourcePermission;
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
+
     protected static ?string $model = Role::class;
     protected static ?string $navigationGroup = 'Configurações';
 

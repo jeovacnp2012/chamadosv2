@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 trait ChecksResourcePermission
 {
@@ -26,9 +27,13 @@ trait ChecksResourcePermission
         return self::checkPermission('delete');
     }
 
-    public static function shouldRegisterNavigation(): bool
+    public static function shouldRegisterNavigation(array $parameters = []): bool
     {
-        return self::checkPermission('view');
+        $name = Str::of(class_basename(static::class))
+            ->replace('Resource', '')
+            ->kebab();
+
+        return auth()->user()?->can("view {$name}");
     }
 
     protected static function checkPermission(string $action): bool

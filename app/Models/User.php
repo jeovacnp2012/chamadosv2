@@ -6,6 +6,7 @@ use App\Contracts\BelongsToCompanyInterface;
 use App\Traits\ChecksResourcePermission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -53,5 +54,9 @@ class User extends Authenticatable implements BelongsToCompanyInterface
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    public function sectors(): BelongsToMany
+    {
+        return $this->belongsToMany(Sector::class);
     }
 }

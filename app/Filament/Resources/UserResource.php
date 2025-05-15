@@ -2,20 +2,16 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Company;
 use App\Traits\ChecksResourcePermission;
-
-
-
-
-
-
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
-use Filament\Forms;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -24,19 +20,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
     use ChecksResourcePermission;
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
+
     protected static ?string $model = User::class;
     protected static ?string $navigationGroup = 'Configurações';
     protected static ?string $navigationLabel = 'Usuários';
@@ -120,6 +108,22 @@ class UserResource extends Resource
                             ->required(),
                     ]),
                 ]),
+            Section::make('Setores permitidos')
+                ->schema([
+                    Select::make('sectors')
+                        ->label('Setores permitidos')
+                        ->relationship('sectors', 'name') // baseado no relacionamento belongsToMany
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
+                        ->options(function () {
+                            return \App\Models\Sector::orderBy('name')->pluck('name', 'id');
+                        })
+                        ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
+                        ->columnSpanFull()
+                        ->extraAttributes(['class' => 'text-sm'])
+                ])
         ]);
 
     }

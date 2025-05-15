@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Filament\Resources\SupplierResource\Pages;
+namespace App\Filament\Resources\DepartamentResource\Pages;
 
 use App\Traits\ChecksResourcePermission;
 
-use App\Filament\Resources\SupplierResource;
+use App\Filament\Resources\DepartamentResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditSupplier extends EditRecord
+class EditDepartament extends EditRecord
 {
     use ChecksResourcePermission;
 
-    protected static string $resource = SupplierResource::class;
+    protected static string $resource = DepartamentResource::class;
 
     protected function getHeaderActions(): array
     {

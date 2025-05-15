@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sectors', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('department_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('departament_id')->constrained()->cascadeOnDelete();
             $table->foreignId('address_id')->nullable()->constrained()->nullOnDelete();
             $table->string('extension')->nullable();
             $table->string('cell_phone')->nullable();

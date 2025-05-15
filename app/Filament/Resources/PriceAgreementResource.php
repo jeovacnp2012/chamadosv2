@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
+
 use App\Filament\Resources\PriceAgreementResource\Pages;
 use App\Models\PriceAgreement;
-use App\Traits\ChecksResourcePermission;
+
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -26,10 +28,7 @@ use Illuminate\Support\Facades\Log;
 class PriceAgreementResource extends Resource
 {
     use ChecksResourcePermission;
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
+
     protected static ?string $model = PriceAgreement::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text'; // 📄
     protected static ?string $navigationGroup = 'Licitações e Contratos';

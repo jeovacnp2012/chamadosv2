@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Filament\Resources\AgreementItemResource\Pages;
+namespace App\Filament\Resources\DepartamentResource\Pages;
 
 use App\Traits\ChecksResourcePermission;
 
-use App\Filament\Resources\AgreementItemResource;
+use App\Filament\Resources\DepartamentResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
-class ListAgreementItems extends ListRecords
+class ListDepartaments extends ListRecords
 {
     use ChecksResourcePermission;
 
-    protected static string $resource = AgreementItemResource::class;
+    protected static string $resource = DepartamentResource::class;
 
     protected function getHeaderActions(): array
     {

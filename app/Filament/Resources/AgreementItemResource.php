@@ -27,18 +27,14 @@ use Illuminate\Support\Facades\Auth;
 
 class AgreementItemResource extends Resource
 {
+    use ChecksResourcePermission;
 
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
     protected static ?string $model = AgreementItem::class;
     protected static ?string $navigationIcon = 'heroicon-o-archive-box'; // 📦
     protected static ?string $navigationGroup = 'Licitações e Contratos';
     protected static ?string $navigationLabel = 'Itens da Ata';
     protected static ?string $modelLabel = 'Item da Ata';
     protected static ?string $pluralModelLabel = 'Itens da Ata';
-
     public static function form(Form $form): Form
     {
         return $form->schema([

@@ -10,23 +10,24 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditUser extends EditRecord
 {
-    protected static string $resource = UserResource::class;
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        if (! array_key_exists('company_id', $data)) {
-            $data['company_id'] = $this->record->company_id;
-        }
+    use ChecksResourcePermission;
 
-        return $data;
-    }
+    protected static string $resource = UserResource::class;
     protected function getHeaderActions(): array
     {
         return [
             Actions\DeleteAction::make(),
         ];
     }
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Garante que company_id continue válido
+        if (! array_key_exists('company_id', $data)) {
+            $data['company_id'] = $this->record->company_id;
+        }
+
+        return $data;
+    }
+
+
 }

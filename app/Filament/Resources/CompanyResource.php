@@ -34,10 +34,7 @@ use function responsiveColumnToggle;
 class CompanyResource extends Resource
 {
     use ChecksResourcePermission;
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
+
     protected static ?string $model = Company::class;
     protected static ?string $navigationGroup = 'Cadastro';
     protected static ?string $navigationIcon = 'heroicon-o-building-library';

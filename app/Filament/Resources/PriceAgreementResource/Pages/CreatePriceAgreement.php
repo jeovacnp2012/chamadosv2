@@ -3,16 +3,14 @@
 namespace App\Filament\Resources\PriceAgreementResource\Pages;
 
 use App\Traits\ChecksResourcePermission;
+
 use App\Filament\Resources\PriceAgreementResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreatePriceAgreement extends CreateRecord
 {
-    protected static string $resource = PriceAgreementResource::class;
+    use ChecksResourcePermission;
 
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
+    protected static string $resource = PriceAgreementResource::class;
 
 }

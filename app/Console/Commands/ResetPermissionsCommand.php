@@ -22,7 +22,7 @@ class ResetPermissionsCommand extends Command
 
         $this->info('Recriando permissoes com base nos Resources...');
 
-        $resources = ['user', 'department', 'address'];
+        $resources = ['user', 'departament', 'address'];
         $actions = ['view', 'create', 'update', 'delete'];
 
         foreach ($resources as $resource) {

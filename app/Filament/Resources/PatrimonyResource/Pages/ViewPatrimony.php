@@ -1,19 +1,18 @@
 <?php
-namespace App\Filament\Resources\CompanyResource\Pages;
+namespace App\Filament\Resources\PatrimonyResource\Pages;
 
+use App\Filament\Resources\PatrimonyResource;
 use App\Traits\ChecksResourcePermission;
-
-use App\Filament\Resources\CompanyResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
-class ViewCompany extends ViewRecord
+class ViewPatrimony extends ViewRecord
 {
     use ChecksResourcePermission;
 
-    protected static string $resource = CompanyResource::class;
+    protected static string $resource = PatrimonyResource::class;
     public function getHeaderActions(): array
     {
         return [

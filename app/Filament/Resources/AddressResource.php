@@ -3,23 +3,20 @@
 namespace App\Filament\Resources;
 
 use App\Traits\ChecksResourcePermission;
+
 use App\Filament\Resources\AddressResource\Pages;
 use App\Filament\Resources\AddressResource\RelationManagers;
-use App\Helpers\Formatter;
 use App\Models\Address;
-use App\Support\ValidationRules;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Http;
 // ✅ Adicionado para reconhecer a função global
@@ -27,17 +24,13 @@ use function responsiveColumnToggle;
 class AddressResource extends Resource
 {
     use ChecksResourcePermission;
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
+
     protected static ?string $model = Address::class;
     protected static ?string $navigationGroup = 'Cadastro';
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
     protected static ?string $navigationLabel = 'Endereços';
     protected static ?string $modelLabel = 'Endereço';
     protected static ?string $pluralModelLabel = 'Endereços';
-
     public static function form(Form $form): Form
     {
         return $form

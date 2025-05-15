@@ -10,11 +10,8 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListPriceAgreements extends ListRecords
 {
+    use ChecksResourcePermission;
 
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
     protected static string $resource = PriceAgreementResource::class;
 
     protected function getHeaderActions(): array

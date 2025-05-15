@@ -18,7 +18,7 @@ class AgreementItem extends Model
         'is_active',
     ];
 
-    public function ata(): BelongsTo
+    public function priceAgreement(): BelongsTo
     {
         return $this->belongsTo(PriceAgreement::class);
     }

@@ -10,10 +10,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateSupplier extends CreateRecord
 {
+    use ChecksResourcePermission;
 
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
     protected static string $resource = SupplierResource::class;
 }

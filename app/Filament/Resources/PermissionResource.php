@@ -4,12 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Traits\ChecksResourcePermission;
 
-
-
-
-
-
-
 use App\Filament\Resources\PermissionResource\Pages;
 use App\Filament\Resources\PermissionResource\RelationManagers;
 use Filament\Forms\Components\TextInput;
@@ -26,10 +20,7 @@ use Spatie\Permission\Models\Permission;
 class PermissionResource extends Resource
 {
     use ChecksResourcePermission;
-    protected function authorizeAccess(): void
-    {
-        abort_unless(static::getResource()::canViewAny(), 403);
-    }
+
     protected static ?string $model = Permission::class;
     protected static ?string $navigationGroup = 'Configurações';
     protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
