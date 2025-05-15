@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Contracts\BelongsToCompanyInterface;
+use App\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PriceAgreement extends Model implements BelongsToCompanyInterface
 {
+    use BelongsToCompany;
     protected $fillable = [
         'number',
         'year',
@@ -17,6 +19,7 @@ class PriceAgreement extends Model implements BelongsToCompanyInterface
         'object',
         'executor_id',
         'company_id',
+        'supplier_id',
     ];
 
     public function executor(): BelongsTo
@@ -32,5 +35,9 @@ class PriceAgreement extends Model implements BelongsToCompanyInterface
     public function items(): HasMany
     {
         return $this->hasMany(AgreementItem::class);
+    }
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 }

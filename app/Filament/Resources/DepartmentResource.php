@@ -47,7 +47,7 @@ class DepartmentResource extends Resource
     protected static ?string $navigationLabel = 'Departamentos';
     protected static ?string $pluralModelLabel = 'Departamentos';
     protected static ?string $modelLabel = 'Departamento';
-    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
+    protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal'; // 🎛️
 
     public static function form(Forms\Form $form): Forms\Form
     {

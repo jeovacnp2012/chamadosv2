@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Contracts\BelongsToCompanyInterface;
+use App\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Supplier extends Model implements BelongsToCompanyInterface
 {
+    use BelongsToCompany;
     protected $fillable = [
         'corporate_name',
         'trade_name',

@@ -18,7 +18,6 @@ use Filament\Support\Facades\FilamentAsset;
 
 class CreateCompany extends CreateRecord
 {
-
     protected function authorizeAccess(): void
     {
         abort_unless(static::getResource()::canViewAny(), 403);

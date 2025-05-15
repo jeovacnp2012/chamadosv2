@@ -30,11 +30,16 @@ use Illuminate\Support\Facades\Http;
 
 class SectorResource extends Resource
 {
+
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     use ChecksResourcePermission;
 
     protected static ?string $model = Sector::class;
     protected static ?string $navigationGroup = 'Cadastro';
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list'; // 📝
     protected static ?string $modelLabel = 'Setor';
     protected static ?string $pluralModelLabel = 'Setores';
 

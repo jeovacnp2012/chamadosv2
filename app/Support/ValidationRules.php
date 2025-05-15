@@ -10,7 +10,54 @@ class ValidationRules
     {
         return str(request()->route()?->getName())->contains('.create');
     }
+    public static function formatCnpj(?string $value): ?string
+    {
+        if (is_null($value)) {
+            return null;
+        }
 
+        $value = preg_replace('/\D/', '', $value);
+
+        return preg_replace('/(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})/', '$1.$2.$3/$4-$5', $value);
+    }
+    public static function formatCpf(?string $value): ?string
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        $value = preg_replace('/\D/', '', $value);
+
+        return preg_replace('/(\\d{3})(\\d{3})(\\d{3})(\\d{2})/', '$1.$2.$3-$4', $value);
+    }
+    public static function formatCep(?string $value): ?string
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        $value = preg_replace('/\D/', '', $value);
+
+        return preg_replace('/(\\d{5})(\\d{3})/', '$1-$2', $value);
+    }
+    public static function formatPhone(?string $value): ?string
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        $value = preg_replace('/\D/', '', $value);
+
+        if (strlen($value) === 11) {
+            return preg_replace('/(\d{2})(\d{5})(\d{4})/', '($1) $2-$3', $value);
+        }
+
+        if (strlen($value) === 10) {
+            return preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2-$3', $value);
+        }
+
+        return $value; // se não tiver 10 ou 11 dígitos, retorna como está
+    }
     public static function cnpj(): Closure
     {
         return function ($attribute, $value, $fail) {
@@ -72,24 +119,6 @@ class ValidationRules
                 $fail('O CEP informado é inválido.');
             }
         };
-    }
-    public static function formatPhone(?string $value): ?string
-    {
-        if (is_null($value)) {
-            return null;
-        }
-
-        $value = preg_replace('/\D/', '', $value);
-
-        if (strlen($value) === 11) {
-            return preg_replace('/(\d{2})(\d{5})(\d{4})/', '($1) $2-$3', $value);
-        }
-
-        if (strlen($value) === 10) {
-            return preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2-$3', $value);
-        }
-
-        return $value; // se não tiver 10 ou 11 dígitos, retorna como está
     }
 
 }

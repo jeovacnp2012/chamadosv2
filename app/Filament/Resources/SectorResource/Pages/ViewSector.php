@@ -1,6 +1,8 @@
 <?php
 namespace App\Filament\Resources\SectorResource\Pages;
 
+use App\Traits\ChecksResourcePermission;
+
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -9,6 +11,11 @@ use App\Filament\Resources\SectorResource;
 
 class ViewSector extends ViewRecord
 {
+
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static string $resource = SectorResource::class;
     public function getHeaderActions(): array
     {

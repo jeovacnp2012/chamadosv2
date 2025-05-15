@@ -15,6 +15,7 @@ use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -58,11 +59,26 @@ class UserResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Section::make('Dados do Usuário')
-                    ->columns(['sm' => 1, 'md' => 2])
-                    ->schema([
+        return $form->schema([
+            Section::make('Vínculo com Empresa')
+                ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
+                ->schema([
+                    Grid::make(['sm' => 1, 'md' => 2])
+                        ->schema([
+                            Select::make('company_id')
+                                ->label('Empresa')
+                                ->relationship('company', 'trade_name')
+                                ->searchable()
+                                ->preload()
+                                ->visible(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
+                                ->required(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
+                                ->dehydrated(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
+                                ->default(fn ($record) => $record?->company_id),
+                        ]),
+                ]),
+            Section::make('Dados do Usuário')
+                ->schema([
+                    Grid::make(['sm' => 1, 'md' => 2])->schema([
                         TextInput::make('name')
                             ->label('Nome')
                             ->dehydrateStateUsing(fn ($state) => strtoupper($state))
@@ -74,49 +90,38 @@ class UserResource extends Resource
                             ->dehydrateStateUsing(fn ($state) => strtolower($state))
                             ->email()
                             ->unique(ignoreRecord: true),
+                    ]),
 
+                    Grid::make(['sm' => 1, 'md' => 2])->schema([
                         TextInput::make('password')
                             ->label('Senha')
                             ->password()
                             ->revealable()
                             ->required(fn(string $context) => $context === 'create')
-                            ->dehydrateStateUsing(fn($state) => filled($state) ? Hash::make($state) : null)
+                            ->dehydrateStateUsing(fn($state) => filled($state) ? \Illuminate\Support\Facades\Hash::make($state) : null)
                             ->dehydrated(fn($state) => filled($state)),
                     ]),
-                Section::make('Acesso e Segurança')
-                    ->columns(['sm' => 1, 'md' => 2])
-                    ->schema([
-                        //Se a escolha for checkbox
+                ]),
+
+            Section::make('Acesso e Segurança')
+                ->schema([
+                    Grid::make(['sm' => 1, 'md' => 2])->schema([
                         CheckboxList::make('roles')
                             ->label('Papéis')
+                            ->relationship('roles', 'name')
                             ->options(function () {
-                                $query = Role::query();
-
-                                if (! auth()->user()->hasRole('Super Admin')) {
+                                $query = \Spatie\Permission\Models\Role::query();
+                                if (! auth()->user()?->hasRole('Super Admin')) {
                                     $query->where('name', '!=', 'Super Admin');
                                 }
-
-                                return $query->pluck('name', 'name');
+                                return $query->pluck('name', 'id');
                             })
-                            ->columns(2)
+                            ->columns(['sm' => 1, 'md' => 2])
                             ->required(),
-                        //Se a escolha for Select multiplos
-//                        Select::make('roles')
-//                            ->label('Papéis')
-//                            ->multiple()
-//                            ->options(function () {
-//                                $query = Role::query();
-//
-//                                if (! auth()->user()->hasRole('Super Admin')) {
-//                                    $query->where('name', '!=', 'Super Admin');
-//                                }
-//
-//                                return $query->pluck('name', 'name');
-//                            })
-//                            ->searchable()
-//                            ->required(),
                     ]),
-            ]);
+                ]),
+        ]);
+
     }
 
     public static function table(Table $table): Table

@@ -40,7 +40,7 @@ class CompanyResource extends Resource
     }
     protected static ?string $model = Company::class;
     protected static ?string $navigationGroup = 'Cadastro';
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static ?string $navigationIcon = 'heroicon-o-building-library';
     protected static ?string $navigationLabel = 'Empresas';
     protected static ?string $modelLabel = 'Empresa';
     protected static ?string $pluralModelLabel = 'Empresas';
@@ -181,7 +181,7 @@ class CompanyResource extends Resource
                 TextColumn::make('cnpj')
                     ->label('CNPJ')
                     ->sortable()
-                    ->formatStateUsing(fn($state) => ValidationRules::formatCnpj($state))
+                    ->formatStateUsing(fn($state) => ValidationRules::cnpj($state))
                     ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
                     ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -1,6 +1,8 @@
 <?php
 namespace App\Filament\Resources\DepartmentResource\Pages;
 
+use App\Traits\ChecksResourcePermission;
+
 use App\Filament\Resources\DepartmentResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -9,6 +11,11 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewDepartament extends ViewRecord
 {
+
+    protected function authorizeAccess(): void
+    {
+        abort_unless(static::getResource()::canViewAny(), 403);
+    }
     protected static string $resource = DepartmentResource::class;
     public function getHeaderActions(): array
     {
