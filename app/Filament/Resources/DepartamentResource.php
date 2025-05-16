@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Company;
 use App\Traits\ChecksResourcePermission;
 
 use App\Filament\Resources\DepartamentResource\Pages;
@@ -9,6 +10,7 @@ use App\Filament\Resources\DepartamentResource\RelationManagers;
 use App\Models\Departament;
 use App\Support\ValidationRules;
 use Filament\Forms;
+use Filament\Forms\Components\MultiSelect;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -17,12 +19,14 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
@@ -72,7 +76,6 @@ class DepartamentResource extends Resource
                         ->label('Email')
                         ->email(),
                 ]),
-
             Section::make('Endereço e Status')
                 ->columns(['sm' => 1, 'md' => 2])
                 ->schema([
@@ -137,10 +140,18 @@ class DepartamentResource extends Resource
         // Chama a função e armazena na variável
         $settings = responsiveColumnToggle(true, false);
         return $table
+            ->filtersTriggerAction(fn(Action $action) =>
+            $action->icon('heroicon-s-adjustments-vertical')
+                ->slideOver()
+            )
             ->columns([
                 TextColumn::make('name')
                     ->label('Departamento')
-                    ->searchable(),
+                    ->sortable()
+                    ->searchable()
+                    ->extraAttributes(responsiveColumnToggle(hideInMobile: false)['extraAttributes'])
+                    ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: false)['extraHeaderAttributes'])
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('company.corporate_name')
                     ->label('Empresa')
                     ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
@@ -167,7 +178,23 @@ class DepartamentResource extends Resource
             ->defaultSort('name')
             ->filters([
                 TernaryFilter::make('is_active')->label('Ativo')->default(true),
+                Filter::make('empresa')
+                    ->label('Empresas')
+                    ->form([
+                        MultiSelect::make('company_ids')
+                            ->label('Empresas')
+                            ->options(fn () => auth()->user()->hasRole('Super Admin')
+                                ? Company::orderBy('corporate_name')->pluck('corporate_name', 'id')
+                                : auth()->user()->company->pluck('corporate_name', 'id'))
+                            ->searchable(),
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (filled($data['company_ids'])) {
+                            $query->whereIn('company_id', $data['company_ids']);
+                        }
+                    }),
             ])
+
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),

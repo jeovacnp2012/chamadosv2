@@ -53,6 +53,15 @@ class UserResource extends Resource
                 ->schema([
                     Grid::make(['sm' => 1, 'md' => 2])
                         ->schema([
+//                            Select::make('company_id')
+//                                ->label('Empresa')
+//                                ->relationship('company', 'trade_name')
+//                                ->searchable()
+//                                ->preload()
+//                                ->visible(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
+//                                ->required(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
+//                                ->dehydrated(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
+//                                ->default(fn ($record) => $record?->company_id),
                             Select::make('company_id')
                                 ->label('Empresa')
                                 ->relationship('company', 'trade_name')
@@ -61,7 +70,7 @@ class UserResource extends Resource
                                 ->visible(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
                                 ->required(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
                                 ->dehydrated(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
-                                ->default(fn ($record) => $record?->company_id),
+                                ->default(fn ($record) => $record?->company_id ?? auth()->user()?->company_id)
                         ]),
                 ]),
             Section::make('Dados do Usuário')
@@ -119,6 +128,22 @@ class UserResource extends Resource
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                         ->options(function () {
                             return \App\Models\Sector::orderBy('name')->pluck('name', 'id');
+                        })
+                        ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
+                        ->columnSpanFull()
+                        ->extraAttributes(['class' => 'text-sm'])
+                ]),
+            Section::make('Departamentos permitidos')
+                ->schema([
+                    Select::make('departaments')
+                        ->label('Departamentos permitidos')
+                        ->relationship('departaments', 'name') // baseado no relacionamento belongsToMany
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
+                        ->options(function () {
+                            return \App\Models\Departament::orderBy('name')->pluck('name', 'id');
                         })
                         ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
                         ->columnSpanFull()

@@ -8,7 +8,6 @@ use App\Filament\Resources\SectorResource\Pages;
 use App\Filament\Resources\SectorResource\RelationManagers;
 use App\Models\Sector;
 use App\Support\ValidationRules;
-
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -16,7 +15,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -27,6 +25,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -39,6 +38,16 @@ class SectorResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list'; // 📝
     protected static ?string $modelLabel = 'Setor';
     protected static ?string $pluralModelLabel = 'Setores';
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()?->hasRole('Super Admin')) {
+            return $query;
+        }
+
+        return $query->whereIn('departament_id', auth()->user()->departaments->pluck('id'));
+    }
 
 
     public static function form(Form $form): Form

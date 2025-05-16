@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Departament;
+use App\Models\Sector;
 use App\Traits\ChecksResourcePermission;
 use App\Filament\Resources\PatrimonyResource\Pages;
 use App\Filament\Resources\PatrimonyResource\RelationManagers;
@@ -9,6 +11,7 @@ use App\Models\Patrimony;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\MultiSelect;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -16,7 +19,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -24,6 +29,8 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -48,9 +55,19 @@ class PatrimonyResource extends Resource
                         Grid::make(['sm' => 1, 'md' => 2])->schema([
                             Select::make('sector_id')
                                 ->label('Setor')
-                                ->relationship('sector', 'name')
                                 ->searchable()
-                                ->preload(3)
+                                ->preload()
+                                ->options(function () {
+                                    $user = auth()->user();
+
+                                    $query = Sector::query()->orderBy('name');
+
+                                    if (! $user->hasRole('Super Admin')) {
+                                        $query->whereIn('id', $user->sectors->pluck('id'));
+                                    }
+
+                                    return $query->pluck('name', 'id')->toArray();
+                                })
                                 ->required(),
                             TextInput::make('tag')
                                 ->label('Plaqueta')
@@ -101,6 +118,11 @@ class PatrimonyResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('tag')
+            ->filtersTriggerAction(fn(Action $action) =>
+                $action->icon('heroicon-s-adjustments-vertical')
+                ->slideOver()
+            )
             ->columns([
                 TextColumn::make('tag')
                     ->label('Plaqueta')
@@ -165,7 +187,52 @@ class PatrimonyResource extends Resource
                     ->trueLabel('Somente ativos')
                     ->falseLabel('Somente inativos')
                     ->default(true),
+                Filter::make('setores')
+                    ->label('Setores')
+                    ->form([
+                        MultiSelect::make('sector_ids')
+                            ->label('Setores')
+                            ->options(fn () => auth()->user()->hasRole('Super Admin')
+                                ? Sector::orderBy('name')->pluck('name', 'id')
+                                : auth()->user()->sectors->pluck('name', 'id'))
+                            ->searchable(),
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (filled($data['sector_ids'])) {
+                            $query->whereIn('sector_id', $data['sector_ids']);
+                        }
+                    }),
+                Filter::make('departamentos')
+                    ->label('Departamentos')
+                    ->form([
+                        MultiSelect::make('departament_ids')
+                            ->label('Departamentos')
+                            ->searchable()
+                            ->options(function () {
+                                $user = auth()->user();
+                                // Se Super Admin, pode tudo
+                                if ($user->hasRole('Super Admin')) {
+                                    return Departament::orderBy('name')->pluck('name', 'id');
+                                }
+                                // Caso contrário, só departamentos dos setores que ele tem acesso
+                                return $user->sectors
+                                    ->load('departament') // carrega departamentos relacionados
+                                    ->pluck('departament') // pega os objetos departament
+                                    ->unique('id') // evita duplicatas
+                                    ->sortBy('name')
+                                    ->pluck('name', 'id'); // monta o array [id => nome]
+                            }),
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (filled($data['departament_ids'])) {
+                            // Busca os setores cujos departamentos estejam entre os selecionados
+                            $query->whereHas('sector.departament', function ($q) use ($data) {
+                                $q->whereIn('id', $data['departament_ids']);
+                            });
+                        }
+                    })
             ])
+            ->filtersFormColumns(2)
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),

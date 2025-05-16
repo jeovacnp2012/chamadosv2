@@ -7,6 +7,7 @@ use App\Traits\ChecksResourcePermission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -59,4 +60,13 @@ class User extends Authenticatable implements BelongsToCompanyInterface
     {
         return $this->belongsToMany(Sector::class);
     }
+    public function departaments(): BelongsToMany
+    {
+        return $this->belongsToMany(Departament::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

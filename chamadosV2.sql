@@ -417,9 +417,9 @@ CREATE TABLE IF NOT EXISTS `cache` (
 -- Copiando dados para a tabela chamadosv2.cache: ~3 rows (aproximadamente)
 DELETE FROM `cache`;
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3', 'i:1;', 1747339359),
-	('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3:timer', 'i:1747339359;', 1747339359),
-	('spatie.permission.cache', 'a:3:{s:5:"alias";a:4:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:48:{i:0;a:4:{s:1:"a";i:25;s:1:"b";s:9:"view user";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:1;a:4:{s:1:"a";i:26;s:1:"b";s:11:"create user";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:2;a:4:{s:1:"a";i:27;s:1:"b";s:11:"update user";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:3;a:4:{s:1:"a";i:28;s:1:"b";s:11:"delete user";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:4;a:4:{s:1:"a";i:29;s:1:"b";s:15:"view department";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:5;a:4:{s:1:"a";i:30;s:1:"b";s:17:"create department";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:6;a:4:{s:1:"a";i:31;s:1:"b";s:17:"update department";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:7;a:4:{s:1:"a";i:32;s:1:"b";s:17:"delete department";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:8;a:4:{s:1:"a";i:33;s:1:"b";s:12:"view address";s:1:"c";s:3:"web";s:1:"r";a:3:{i:0;i:8;i:1;i:9;i:2;i:10;}}i:9;a:4:{s:1:"a";i:34;s:1:"b";s:14:"create address";s:1:"c";s:3:"web";s:1:"r";a:3:{i:0;i:8;i:1;i:9;i:2;i:10;}}i:10;a:4:{s:1:"a";i:35;s:1:"b";s:14:"update address";s:1:"c";s:3:"web";s:1:"r";a:3:{i:0;i:8;i:1;i:9;i:2;i:10;}}i:11;a:4:{s:1:"a";i:36;s:1:"b";s:14:"delete address";s:1:"c";s:3:"web";s:1:"r";a:3:{i:0;i:8;i:1;i:9;i:2;i:10;}}i:12;a:4:{s:1:"a";i:37;s:1:"b";s:12:"view company";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:13;a:4:{s:1:"a";i:38;s:1:"b";s:14:"create company";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:14;a:4:{s:1:"a";i:39;s:1:"b";s:14:"update company";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:15;a:4:{s:1:"a";i:40;s:1:"b";s:14:"delete company";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:16;a:4:{s:1:"a";i:41;s:1:"b";s:15:"view permission";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:17;a:4:{s:1:"a";i:42;s:1:"b";s:17:"create permission";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:18;a:4:{s:1:"a";i:43;s:1:"b";s:17:"update permission";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:19;a:4:{s:1:"a";i:44;s:1:"b";s:17:"delete permission";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:20;a:4:{s:1:"a";i:45;s:1:"b";s:9:"view role";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:21;a:4:{s:1:"a";i:46;s:1:"b";s:11:"create role";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:22;a:4:{s:1:"a";i:47;s:1:"b";s:11:"update role";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:23;a:4:{s:1:"a";i:48;s:1:"b";s:11:"delete role";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:24;a:4:{s:1:"a";i:49;s:1:"b";s:11:"view sector";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:25;a:4:{s:1:"a";i:50;s:1:"b";s:13:"create sector";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:26;a:4:{s:1:"a";i:51;s:1:"b";s:13:"update sector";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:27;a:4:{s:1:"a";i:52;s:1:"b";s:13:"delete sector";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:28;a:4:{s:1:"a";i:53;s:1:"b";s:19:"view agreement-item";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:29;a:4:{s:1:"a";i:54;s:1:"b";s:21:"create agreement-item";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:30;a:4:{s:1:"a";i:55;s:1:"b";s:21:"update agreement-item";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:31;a:4:{s:1:"a";i:56;s:1:"b";s:21:"delete agreement-item";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:32;a:4:{s:1:"a";i:57;s:1:"b";s:20:"view price-agreement";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:33;a:4:{s:1:"a";i:58;s:1:"b";s:22:"create price-agreement";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:34;a:4:{s:1:"a";i:59;s:1:"b";s:22:"update price-agreement";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:35;a:4:{s:1:"a";i:60;s:1:"b";s:22:"delete price-agreement";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:36;a:4:{s:1:"a";i:61;s:1:"b";s:13:"view supplier";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:37;a:4:{s:1:"a";i:62;s:1:"b";s:15:"create supplier";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:38;a:4:{s:1:"a";i:63;s:1:"b";s:15:"update supplier";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:39;a:4:{s:1:"a";i:64;s:1:"b";s:15:"delete supplier";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:40;a:4:{s:1:"a";i:65;s:1:"b";s:16:"view departament";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:41;a:4:{s:1:"a";i:66;s:1:"b";s:18:"create departament";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:42;a:4:{s:1:"a";i:67;s:1:"b";s:18:"update departament";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:43;a:4:{s:1:"a";i:68;s:1:"b";s:18:"delete departament";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:44;a:4:{s:1:"a";i:69;s:1:"b";s:14:"view patrimony";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:45;a:4:{s:1:"a";i:70;s:1:"b";s:16:"create patrimony";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:46;a:4:{s:1:"a";i:71;s:1:"b";s:16:"update patrimony";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:47;a:4:{s:1:"a";i:72;s:1:"b";s:16:"delete patrimony";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}}s:5:"roles";a:3:{i:0;a:3:{s:1:"a";i:8;s:1:"b";s:11:"Super Admin";s:1:"c";s:3:"web";}i:1;a:3:{s:1:"a";i:10;s:1:"b";s:7:"Gerente";s:1:"c";s:3:"web";}i:2;a:3:{s:1:"a";i:9;s:1:"b";s:8:"Operador";s:1:"c";s:3:"web";}}}', 1747425920);
+	('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3', 'i:1;', 1747427840),
+	('livewire-rate-limiter:a17961fa74e9275d529f489537f179c05d50c2f3:timer', 'i:1747427840;', 1747427840),
+	('spatie.permission.cache', 'a:3:{s:5:"alias";a:4:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:52:{i:0;a:4:{s:1:"a";i:25;s:1:"b";s:9:"view user";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:1;a:4:{s:1:"a";i:26;s:1:"b";s:11:"create user";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:2;a:4:{s:1:"a";i:27;s:1:"b";s:11:"update user";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:3;a:4:{s:1:"a";i:28;s:1:"b";s:11:"delete user";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:4;a:4:{s:1:"a";i:29;s:1:"b";s:15:"view department";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:5;a:4:{s:1:"a";i:30;s:1:"b";s:17:"create department";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:6;a:4:{s:1:"a";i:31;s:1:"b";s:17:"update department";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:7;a:4:{s:1:"a";i:32;s:1:"b";s:17:"delete department";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:8;a:4:{s:1:"a";i:33;s:1:"b";s:12:"view address";s:1:"c";s:3:"web";s:1:"r";a:3:{i:0;i:8;i:1;i:9;i:2;i:10;}}i:9;a:4:{s:1:"a";i:34;s:1:"b";s:14:"create address";s:1:"c";s:3:"web";s:1:"r";a:3:{i:0;i:8;i:1;i:9;i:2;i:10;}}i:10;a:4:{s:1:"a";i:35;s:1:"b";s:14:"update address";s:1:"c";s:3:"web";s:1:"r";a:3:{i:0;i:8;i:1;i:9;i:2;i:10;}}i:11;a:4:{s:1:"a";i:36;s:1:"b";s:14:"delete address";s:1:"c";s:3:"web";s:1:"r";a:3:{i:0;i:8;i:1;i:9;i:2;i:10;}}i:12;a:4:{s:1:"a";i:37;s:1:"b";s:12:"view company";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:13;a:4:{s:1:"a";i:38;s:1:"b";s:14:"create company";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:14;a:4:{s:1:"a";i:39;s:1:"b";s:14:"update company";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:15;a:4:{s:1:"a";i:40;s:1:"b";s:14:"delete company";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:16;a:4:{s:1:"a";i:41;s:1:"b";s:15:"view permission";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:17;a:4:{s:1:"a";i:42;s:1:"b";s:17:"create permission";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:18;a:4:{s:1:"a";i:43;s:1:"b";s:17:"update permission";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:19;a:4:{s:1:"a";i:44;s:1:"b";s:17:"delete permission";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:20;a:4:{s:1:"a";i:45;s:1:"b";s:9:"view role";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:21;a:4:{s:1:"a";i:46;s:1:"b";s:11:"create role";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:22;a:4:{s:1:"a";i:47;s:1:"b";s:11:"update role";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:23;a:4:{s:1:"a";i:48;s:1:"b";s:11:"delete role";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:8;}}i:24;a:4:{s:1:"a";i:49;s:1:"b";s:11:"view sector";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:25;a:4:{s:1:"a";i:50;s:1:"b";s:13:"create sector";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:26;a:4:{s:1:"a";i:51;s:1:"b";s:13:"update sector";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:27;a:4:{s:1:"a";i:52;s:1:"b";s:13:"delete sector";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:28;a:4:{s:1:"a";i:53;s:1:"b";s:19:"view agreement-item";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:29;a:4:{s:1:"a";i:54;s:1:"b";s:21:"create agreement-item";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:30;a:4:{s:1:"a";i:55;s:1:"b";s:21:"update agreement-item";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:31;a:4:{s:1:"a";i:56;s:1:"b";s:21:"delete agreement-item";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:32;a:4:{s:1:"a";i:57;s:1:"b";s:20:"view price-agreement";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:33;a:4:{s:1:"a";i:58;s:1:"b";s:22:"create price-agreement";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:34;a:4:{s:1:"a";i:59;s:1:"b";s:22:"update price-agreement";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:35;a:4:{s:1:"a";i:60;s:1:"b";s:22:"delete price-agreement";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:36;a:4:{s:1:"a";i:61;s:1:"b";s:13:"view supplier";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:37;a:4:{s:1:"a";i:62;s:1:"b";s:15:"create supplier";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:38;a:4:{s:1:"a";i:63;s:1:"b";s:15:"update supplier";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:39;a:4:{s:1:"a";i:64;s:1:"b";s:15:"delete supplier";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:8;i:1;i:10;}}i:40;a:4:{s:1:"a";i:65;s:1:"b";s:16:"view departament";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:41;a:4:{s:1:"a";i:66;s:1:"b";s:18:"create departament";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:42;a:4:{s:1:"a";i:67;s:1:"b";s:18:"update departament";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:43;a:4:{s:1:"a";i:68;s:1:"b";s:18:"delete departament";s:1:"c";s:3:"web";s:1:"r";a:1:{i:0;i:10;}}i:44;a:4:{s:1:"a";i:69;s:1:"b";s:14:"view patrimony";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:9;i:1;i:10;}}i:45;a:4:{s:1:"a";i:70;s:1:"b";s:16:"create patrimony";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:9;i:1;i:10;}}i:46;a:4:{s:1:"a";i:71;s:1:"b";s:16:"update patrimony";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:9;i:1;i:10;}}i:47;a:4:{s:1:"a";i:72;s:1:"b";s:16:"delete patrimony";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:9;i:1;i:10;}}i:48;a:4:{s:1:"a";i:73;s:1:"b";s:11:"view called";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:9;i:1;i:10;}}i:49;a:4:{s:1:"a";i:74;s:1:"b";s:13:"create called";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:9;i:1;i:10;}}i:50;a:4:{s:1:"a";i:75;s:1:"b";s:13:"update called";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:9;i:1;i:10;}}i:51;a:4:{s:1:"a";i:76;s:1:"b";s:13:"delete called";s:1:"c";s:3:"web";s:1:"r";a:2:{i:0;i:9;i:1;i:10;}}}s:5:"roles";a:3:{i:0;a:3:{s:1:"a";i:8;s:1:"b";s:11:"Super Admin";s:1:"c";s:3:"web";}i:1;a:3:{s:1:"a";i:10;s:1:"b";s:7:"Gerente";s:1:"c";s:3:"web";}i:2;a:3:{s:1:"a";i:9;s:1:"b";s:8:"Operador";s:1:"c";s:3:"web";}}}', 1747513714);
 
 -- Copiando estrutura para tabela chamadosv2.cache_locks
 DROP TABLE IF EXISTS `cache_locks`;
@@ -492,6 +492,22 @@ INSERT INTO `departaments` (`id`, `company_id`, `address_id`, `name`, `contact_p
 	(15, 1, NULL, 'GERAL', 'GERAL', NULL, NULL, NULL, 1, '2024-07-29 23:06:07', '2024-08-08 21:41:41'),
 	(16, 1, NULL, 'ADMINISTRAÇÃO', 'ILDO FACCIO', NULL, NULL, NULL, 1, '2024-11-27 17:15:55', '2024-11-27 17:39:35');
 
+-- Copiando estrutura para tabela chamadosv2.departament_user
+DROP TABLE IF EXISTS `departament_user`;
+CREATE TABLE IF NOT EXISTS `departament_user` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `departament_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`user_id`,`departament_id`),
+  KEY `departament_user_departament_id_foreign` (`departament_id`),
+  CONSTRAINT `departament_user_departament_id_foreign` FOREIGN KEY (`departament_id`) REFERENCES `departaments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `departament_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Copiando dados para a tabela chamadosv2.departament_user: ~1 rows (aproximadamente)
+DELETE FROM `departament_user`;
+INSERT INTO `departament_user` (`user_id`, `departament_id`) VALUES
+	(2, 1);
+
 -- Copiando estrutura para tabela chamadosv2.failed_jobs
 DROP TABLE IF EXISTS `failed_jobs`;
 CREATE TABLE IF NOT EXISTS `failed_jobs` (
@@ -552,9 +568,9 @@ CREATE TABLE IF NOT EXISTS `migrations` (
   `migration` varchar(255) NOT NULL,
   `batch` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela chamadosv2.migrations: ~14 rows (aproximadamente)
+-- Copiando dados para a tabela chamadosv2.migrations: ~16 rows (aproximadamente)
 DELETE FROM `migrations`;
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(1, '0001_01_01_000000_create_users_table', 1),
@@ -571,7 +587,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(12, '2025_05_12_213253_create_price_agreements_table', 3),
 	(13, '2025_05_12_213255_create_agreement_items_table', 3),
 	(14, '2025_05_15_164341_create_patrimonies_table', 4),
-	(15, '2025_05_15_191936_create_sector_user_table', 5);
+	(15, '2025_05_15_191936_create_sector_user_table', 5),
+	(16, '2025_05_16_174258_create_departament_user_table', 6),
+	(17, '2025_05_16_192427_create_calleds_table', 7);
 
 -- Copiando estrutura para tabela chamadosv2.model_has_permissions
 DROP TABLE IF EXISTS `model_has_permissions`;
@@ -645,7 +663,7 @@ CREATE TABLE IF NOT EXISTS `patrimonies` (
   CONSTRAINT `patrimonies_sector_id_foreign` FOREIGN KEY (`sector_id`) REFERENCES `sectors` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=286917 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela chamadosv2.patrimonies: ~10.209 rows (aproximadamente)
+-- Copiando dados para a tabela chamadosv2.patrimonies: ~10.299 rows (aproximadamente)
 DELETE FROM `patrimonies`;
 INSERT INTO `patrimonies` (`id`, `sector_id`, `tag`, `description`, `observation`, `image_path`, `purchase_date`, `purchase_value`, `write_off_reason`, `write_off_date`, `has_report`, `report_date`, `type`, `acquisition_type`, `acquisition_value`, `acquisition_date`, `current_value`, `is_active`, `created_at`, `updated_at`) VALUES
 	(2, 12, '34531', 'FRIGOBAR 120 LTS, SUN BAR SPRINGER', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 325, '1991-01-18 04:00:00', NULL, 1, NULL, NULL),
@@ -11062,9 +11080,9 @@ CREATE TABLE IF NOT EXISTS `permissions` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela chamadosv2.permissions: ~40 rows (aproximadamente)
+-- Copiando dados para a tabela chamadosv2.permissions: ~48 rows (aproximadamente)
 DELETE FROM `permissions`;
 INSERT INTO `permissions` (`id`, `name`, `guard_name`, `created_at`, `updated_at`) VALUES
 	(25, 'view user', 'web', '2025-05-12 23:41:01', '2025-05-12 23:41:01'),
@@ -11114,7 +11132,11 @@ INSERT INTO `permissions` (`id`, `name`, `guard_name`, `created_at`, `updated_at
 	(69, 'view patrimony', 'web', '2025-05-16 00:03:39', '2025-05-16 00:03:39'),
 	(70, 'create patrimony', 'web', '2025-05-16 00:03:39', '2025-05-16 00:03:39'),
 	(71, 'update patrimony', 'web', '2025-05-16 00:03:39', '2025-05-16 00:03:39'),
-	(72, 'delete patrimony', 'web', '2025-05-16 00:03:39', '2025-05-16 00:03:39');
+	(72, 'delete patrimony', 'web', '2025-05-16 00:03:39', '2025-05-16 00:03:39'),
+	(73, 'view called', 'web', '2025-05-17 00:27:30', '2025-05-17 00:27:30'),
+	(74, 'create called', 'web', '2025-05-17 00:27:30', '2025-05-17 00:27:30'),
+	(75, 'update called', 'web', '2025-05-17 00:27:30', '2025-05-17 00:27:30'),
+	(76, 'delete called', 'web', '2025-05-17 00:27:30', '2025-05-17 00:27:30');
 
 -- Copiando estrutura para tabela chamadosv2.price_agreements
 DROP TABLE IF EXISTS `price_agreements`;
@@ -11174,7 +11196,7 @@ CREATE TABLE IF NOT EXISTS `role_has_permissions` (
   CONSTRAINT `role_has_permissions_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela chamadosv2.role_has_permissions: ~73 rows (aproximadamente)
+-- Copiando dados para a tabela chamadosv2.role_has_permissions: ~81 rows (aproximadamente)
 DELETE FROM `role_has_permissions`;
 INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 	(25, 8),
@@ -11254,10 +11276,22 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 	(66, 10),
 	(67, 10),
 	(68, 10),
+	(69, 9),
 	(69, 10),
+	(70, 9),
 	(70, 10),
+	(71, 9),
 	(71, 10),
-	(72, 10);
+	(72, 9),
+	(72, 10),
+	(73, 9),
+	(73, 10),
+	(74, 9),
+	(74, 10),
+	(75, 9),
+	(75, 10),
+	(76, 9),
+	(76, 10);
 
 -- Copiando estrutura para tabela chamadosv2.sectors
 DROP TABLE IF EXISTS `sectors`;
@@ -11418,6 +11452,23 @@ INSERT INTO `sectors` (`id`, `name`, `departament_id`, `address_id`, `extension`
 	(140, 'ESCOLA SÃO JOSE / SÃO MANOEL', 14, NULL, NULL, NULL, NULL, 'emcsaojose@novamutum.mt.gov.br', 1, '2025-03-19 14:06:31', '2025-03-19 14:06:31'),
 	(141, 'ESCOLA FUTURO BRILHANTE', 14, NULL, NULL, NULL, NULL, 'emebfuturobrilhante@novamutum.mt.gov.br', 1, '2025-04-09 14:47:49', '2025-04-09 14:47:49');
 
+-- Copiando estrutura para tabela chamadosv2.sector_user
+DROP TABLE IF EXISTS `sector_user`;
+CREATE TABLE IF NOT EXISTS `sector_user` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `sector_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`user_id`,`sector_id`),
+  KEY `sector_user_sector_id_foreign` (`sector_id`),
+  CONSTRAINT `sector_user_sector_id_foreign` FOREIGN KEY (`sector_id`) REFERENCES `sectors` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `sector_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Copiando dados para a tabela chamadosv2.sector_user: ~2 rows (aproximadamente)
+DELETE FROM `sector_user`;
+INSERT INTO `sector_user` (`user_id`, `sector_id`) VALUES
+	(2, 81),
+	(2, 98);
+
 -- Copiando estrutura para tabela chamadosv2.sessions
 DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE IF NOT EXISTS `sessions` (
@@ -11432,11 +11483,11 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   KEY `sessions_last_activity_index` (`last_activity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Copiando dados para a tabela chamadosv2.sessions: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela chamadosv2.sessions: ~2 rows (aproximadamente)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('lvZ5NUdoKewHr4yYwDpIHMWjElQXbqe1L3fMsELG', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:138.0) Gecko/20100101 Firefox/138.0', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiWGp3cDB4Y2tPUjhVcVVEMkFUU1o4ZFBNbDFRQ01BaUd4cHlrUnVZSiI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjM5OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYWRtaW4vcGF0cmltb25pZXMiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO3M6MTc6InBhc3N3b3JkX2hhc2hfd2ViIjtzOjYwOiIkMnkkMTIkTlFJOU40RGl1MzgyTGhMMnpnc3pMT3pLcVBLMVdBM3BpWndaREtSeS8yTGdueFNDcFQ4UC4iO30=', 1747342524),
-	('Y5EEIIRyXn04T5hRgw85lFS5mQzp7k5vVXcRn3cr', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiNVlmY1ZUcktPaTZTajNuWEJTbkIwS0R3OWVlbmxkREw1ZnU3SGRUcyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi91c2Vycy8yL2VkaXQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo2O3M6MTc6InBhc3N3b3JkX2hhc2hfd2ViIjtzOjYwOiIkMnkkMTIkTlFJOU40RGl1MzgyTGhMMnpnc3pMT3pLcVBLMVdBM3BpWndaREtSeS8yTGdueFNDcFQ4UC4iO3M6ODoiZmlsYW1lbnQiO2E6MDp7fXM6NjoidGFibGVzIjthOjI6e3M6NDE6ImZmMmMyMjg0ZGEyODRlY2Q2NTMwNTBmZGZhMGQzMWUwX3Blcl9wYWdlIjtzOjM6ImFsbCI7czo0ODoiNjQ2MjdjZTZhYjAyNTJmMzRmNzczZDFiYjY3ZTZkMDVfdG9nZ2xlZF9jb2x1bW5zIjthOjY6e3M6MzoidGFnIjtiOjE7czoxMToiZGVzY3JpcHRpb24iO2I6MDtzOjY6InNlY3RvciI7YToxOntzOjQ6Im5hbWUiO2I6MDt9czo5OiJpc19hY3RpdmUiO2I6MDtzOjE0OiJwdXJjaGFzZV92YWx1ZSI7YjowO3M6MTM6InB1cmNoYXNlX2RhdGUiO2I6MDt9fX0=', 1747342454);
+	('9JBONf1be3ntzzReG1yE3ykss56A18QyZOBrXChk', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:138.0) Gecko/20100101 Firefox/138.0', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiVGZUWkVCQlEwSUFjdzdib1pPZ1dWeWhzbkVOYUtjeUxTUXB1WEJvZSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi91c2Vycy8zL2VkaXQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo2O3M6MTc6InBhc3N3b3JkX2hhc2hfd2ViIjtzOjYwOiIkMnkkMTIkTlFJOU40RGl1MzgyTGhMMnpnc3pMT3pLcVBLMVdBM3BpWndaREtSeS8yTGdueFNDcFQ4UC4iO3M6ODoiZmlsYW1lbnQiO2E6MDp7fX0=', 1747427901),
+	('EKe4KKo1btDXzQb1rtTqq08TeRaCoeBuS9CkC58b', 3, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiRzFLSFlKREdUUndWczN6UHgzZmJOaEJDU1o3Q0d1S3FlaXNORnI2TyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9jYWxsZWRzL2NyZWF0ZSI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM7czoxNzoicGFzc3dvcmRfaGFzaF93ZWIiO3M6NjA6IiQyeSQxMiQuQ01reWNCZVNGbHhOOWZwLjgzL21lY21BdzBsTnNRRC5WbTFsbHJMMmVyS3B1L1JTc1hKdSI7fQ==', 1747427893);
 
 -- Copiando estrutura para tabela chamadosv2.suppliers
 DROP TABLE IF EXISTS `suppliers`;
