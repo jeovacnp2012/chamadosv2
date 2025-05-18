@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Departament;
 use App\Traits\ChecksResourcePermission;
 
 use App\Filament\Resources\SectorResource\Pages;
@@ -41,11 +42,9 @@ class SectorResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-
         if (auth()->user()?->hasRole('Super Admin')) {
             return $query;
         }
-
         return $query->whereIn('departament_id', auth()->user()->departaments->pluck('id'));
     }
 
@@ -66,10 +65,16 @@ class SectorResource extends Resource
                             ->required(),
                         Select::make('departament_id')
                             ->label('Departamento')
-                            ->relationship('departament', 'name')
-                            ->required()
+                            ->options(function () {
+                                $user = auth()->user();
+
+                                return $user->hasRole('Super Admin')
+                                    ? Departament::orderBy('name')->pluck('name', 'id')
+                                    : $user->departaments->pluck('name', 'id');
+                            })
+                            ->searchable()
                             ->preload()
-                            ->searchable(),
+                            ->required(),
                     ]),
                 Section::make('Contato e Status')
                     ->columns([

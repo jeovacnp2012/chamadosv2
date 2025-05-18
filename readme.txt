@@ -11,4 +11,8 @@
 `closing_date` date DEFAULT NULL,
 `patrimony` tinyint unsigned DEFAULT NULL,
 
+✅ Adicionar lógica para permitir apenas 1 chamado aberto por patrimônio
+✅ Exibir uma notificação automática ao setor responsável
+✅ Criar painel com chamados pendentes + tempo médio de resolução
+
 

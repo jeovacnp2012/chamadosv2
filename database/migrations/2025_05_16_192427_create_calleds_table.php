@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('protocol', 30)->unique();
 
             $table->enum('status', ['A', 'F'])->default('A')->comment('A = Aberto, F = Fechado');
-            $table->enum('type_maintenance', ['P', 'C'])->comment('P = Preventiva, C = Corretiva');
+            $table->string('type_maintenance')->comment('P = Preventiva, C = Corretiva, R = Retorno');
 
             $table->date('closing_date')->nullable();
             $table->boolean('patrimony')->nullable(); // indicar se é patrimonial ou não (?)

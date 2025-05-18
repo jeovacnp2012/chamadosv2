@@ -6,6 +6,7 @@ use App\Traits\ChecksResourcePermission;
 
 use App\Filament\Resources\AgreementItemResource\Pages;
 use App\Models\AgreementItem;
+use Carbon\Carbon;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -55,10 +56,9 @@ class AgreementItemResource extends Resource
                     ]),
                     Grid::make(2)->schema([
                         TextInput::make('unit')->label('Unidade'),
-                        Select::make('type')->label('Tipo')->options([
-                            'part' => 'Peça',
-                            'service' => 'Serviço',
-                        ]),
+                        Select::make('type')
+                            ->label('Tipo')
+                            ->options(\App\Enums\ItemTypeEnum::options()),
                     ]),
                     Textarea::make('description')->label('Descrição')->columnSpanFull(),
                     Toggle::make('is_active')
@@ -76,16 +76,54 @@ class AgreementItemResource extends Resource
     {
         return $table->columns([
             TextColumn::make('code')
-                ->label('Código'),
-            TextColumn::make('description')
+                ->label('Código')
+                ->formatStateUsing(function ($state, $record) {
+                    $description = $record->description ?? 'Sem descrição';
+                    $price = isset($record->price) ? 'R$ ' . number_format($record->price, 2, ',', '.') : 'R$ 0,00';
+                    // Converte a enum para texto legível
+                    $type = $record->type instanceof \App\Enums\ItemTypeEnum
+                        ? $record->type->label()
+                        : 'Sem tipo';
+
+
+                    return "
+                            <div class='text-sm leading-relaxed'>
+                                <div class='font-semibold text-white'>{$state}</div>
+                                <div class='text-gray-400'><strong>Descrição:</strong> {$description}</div>
+                                <div class='text-gray-400'><strong>Preço:</strong> {$price}</div>
+                                <div class='text-gray-400'><strong>Tipo:</strong> {$type}</div>
+                            </div>
+                        ";
+                })
+                ->html()
+                ->wrap()
+                ->extraAttributes(responsiveColumnToggle(hideInMobile: false)['extraAttributes'])
+                ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                ->toggleable(isToggledHiddenByDefault: false),
+        TextColumn::make('description')
                 ->label('Descrição')
-                ->limit(40),
+                ->limit(40)
+                ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('unit_price')
                 ->label('Preço')
-                ->money('BRL'),
+                ->money('BRL')
+                ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('type')
                 ->label('Tipo')
-                ->badge(),
+                ->badge()
+                ->formatStateUsing(fn($state) => $state?->label() ?? '—') // <- traduz enum
+                ->color(fn($state) => match ($state) {
+                    \App\Enums\ItemTypeEnum::PART => 'blue',
+                    \App\Enums\ItemTypeEnum::SERVICE => 'green',
+                    default => 'gray',
+                })
+                ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
+                ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
+                ->toggleable(isToggledHiddenByDefault: true),
             IconColumn::make('is_active')
                 ->label('Ativa')
                 ->boolean()

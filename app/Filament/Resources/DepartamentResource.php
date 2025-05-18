@@ -29,6 +29,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -42,6 +43,16 @@ class DepartamentResource extends Resource
     protected static ?string $pluralModelLabel = 'Departamentos';
     protected static ?string $modelLabel = 'Departamento';
     protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal'; // 🎛️
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()?->hasRole('Super Admin')) {
+            return $query;
+        }
+
+        return $query->whereIn('id', auth()->user()->departaments->pluck('id'));
+    }
 
     public static function form(Forms\Form $form): Forms\Form
     {

@@ -20,6 +20,7 @@ class PriceAgreement extends Model implements BelongsToCompanyInterface
         'executor_id',
         'company_id',
         'supplier_id',
+        'is_active',
     ];
 
     public function executor(): BelongsTo

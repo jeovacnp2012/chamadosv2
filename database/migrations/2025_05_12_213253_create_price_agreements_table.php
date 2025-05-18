@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('object');
             $table->foreignId('supplier_id')->constrained()->cascadeOnDelete();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

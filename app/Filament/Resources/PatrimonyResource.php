@@ -31,6 +31,7 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -182,7 +183,7 @@ class PatrimonyResource extends Resource
             ])
             ->defaultSort('tag', 'asc')
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label('Ativo?')
                     ->trueLabel('Somente ativos')
                     ->falseLabel('Somente inativos')
