@@ -17,6 +17,7 @@ class User extends Authenticatable implements BelongsToCompanyInterface
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, ChecksResourcePermission, HasRoles;
 
+    protected $with = ['departaments', 'sectors'];
     /**
      * The attributes that are mass assignable.
      *

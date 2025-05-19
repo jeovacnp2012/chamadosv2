@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Models\Company;
+use App\Models\Departament;
+use App\Models\Sector;
 use App\Traits\ChecksResourcePermission;
 
 use App\Filament\Resources\UserResource\Pages;
@@ -18,6 +20,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -117,38 +123,112 @@ class UserResource extends Resource
                             ->required(),
                     ]),
                 ]),
-            Section::make('Setores permitidos')
-                ->schema([
-                    Select::make('sectors')
-                        ->label('Setores permitidos')
-                        ->relationship('sectors', 'name') // baseado no relacionamento belongsToMany
-                        ->multiple()
-                        ->searchable()
-                        ->preload()
-                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
-                        ->options(function () {
-                            return \App\Models\Sector::orderBy('name')->pluck('name', 'id');
-                        })
-                        ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
-                        ->columnSpanFull()
-                        ->extraAttributes(['class' => 'text-sm'])
-                ]),
             Section::make('Departamentos permitidos')
                 ->schema([
                     Select::make('departaments')
                         ->label('Departamentos permitidos')
-                        ->relationship('departaments', 'name') // baseado no relacionamento belongsToMany
+                        ->relationship('departaments', 'name')
                         ->multiple()
                         ->searchable()
                         ->preload()
-                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
+                        ->live()
+                        ->hint('Selecione os departamentos para filtrar os setores disponíveis')
+                        ->afterStateUpdated(function ($state, $set) {
+                            $set('sectors', []);
+                        })
                         ->options(function () {
-                            return \App\Models\Departament::orderBy('name')->pluck('name', 'id');
+                            $query = Departament::orderBy('name');
+
+                            if (!auth()->user()->hasRole('Super Admin')) {
+                                $query->whereIn('id', auth()->user()->departaments->pluck('id'));
+                            }
+
+                            return $query->pluck('name', 'id');
                         })
                         ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
                         ->columnSpanFull()
-                        ->extraAttributes(['class' => 'text-sm'])
-                ])
+                ]),
+            Section::make('Setores permitidos')
+                ->schema([
+                    Select::make('sectors')
+                        ->label('Setores permitidos')
+                        ->relationship('sectors', 'name')
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->hint(fn () => auth()->user()->hasRole('Super Admin')
+                            ? 'Setores serão filtrados pelos departamentos selecionados'
+                            : 'Você só pode selecionar setores dos seus departamentos')
+                        ->options(function (callable $get) {
+                            $departamentIds = $get('departaments') ?? [];
+
+                            $query = Sector::orderBy('name');
+
+                            if (!empty($departamentIds)) {
+                                $query->whereIn('departament_id', $departamentIds);
+                            } elseif (!auth()->user()->hasRole('Super Admin')) {
+                                $query->whereIn('departament_id', auth()->user()->departaments->pluck('id'));
+                            }
+
+                            return $query->pluck('name', 'id');
+                        })
+                        ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
+                        ->columnSpanFull(),
+                    // Seção para usuários normais (não-admin)
+                    Section::make('Meus Setores')
+                        ->schema([
+                            Select::make('sectors')
+                                ->label('Setores permitidos')
+                                ->relationship('sectors', 'name')
+                                ->multiple()
+                                ->hint(fn () => auth()->user()->hasRole('Super Admin')
+                                    ? 'Setores serão filtrados pelos departamentos selecionados'
+                                    : 'Você só pode selecionar setores dos seus departamentos')
+                                ->options(fn () =>
+                                auth()->user()->sectors()
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                )
+                                ->visible(fn () => !auth()->user()?->hasRole('Super Admin'))
+                                ->columnSpanFull()
+                        ])->visible(fn () => !auth()->user()?->hasRole('Super Admin')),
+                ]),
+//                ->rules([
+//                    'departaments' => 'nullable|array',
+//                    'departaments.*' => 'exists:departaments,id',
+//                    'sectors' => 'nullable|array',
+//                    'sectors.*' => [
+//                        'exists:sectors,id',
+//                        function ($attribute, $value, $fail) {
+//                            // Se for Super Admin ou Gerente, não precisa validar
+//                            if (auth()->user()->hasAnyRole(['Super Admin', 'Gerente'])) {
+//                                return;
+//                            }
+//                            $departamentIds = auth()->user()->departaments->pluck('id');
+//                            $sectorDepartament = Sector::find($value)->departament_id;
+//
+//                            if (!in_array($sectorDepartament, $departamentIds)) {
+//                                $fail('O setor selecionado não pertence aos seus departamentos.');
+//                            }
+//                        }
+//                    ]
+//                ]),
+//            Section::make('Setores permitidos')
+//                ->schema([
+//                    Select::make('sectors')
+//                        ->label('Setores permitidos')
+//                        ->relationship('sectors', 'name') // baseado no relacionamento belongsToMany
+//                        ->multiple()
+//                        ->searchable()
+//                        ->preload()
+//                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
+//                        ->options(function () {
+//                            return \App\Models\Sector::orderBy('name')->pluck('name', 'id');
+//                        })
+//                        ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
+//                        ->columnSpanFull()
+//                        ->extraAttributes(['class' => 'text-sm'])
+//                ]),
         ]);
 
     }
@@ -166,7 +246,13 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
+                    EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
+                    DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
+                ])
+                    ->button()
+                    ->label('Ações'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -12,12 +12,12 @@ class Called extends Model
         'sector_id',
         'supplier_id',
         'patrimony_id',
+        'called_type_id',
         'problem',
         'protocol',
         'status',
         'type_maintenance',
         'closing_date',
-        'patrimony',
     ];
     // Relacionamentos
     public function user(): BelongsTo
@@ -38,5 +38,9 @@ class Called extends Model
     public function patrimony(): BelongsTo
     {
         return $this->belongsTo(Patrimony::class);
+    }
+    public function calledType(): BelongsTo
+    {
+        return $this->belongsTo(CalledType::class);
     }
 }
