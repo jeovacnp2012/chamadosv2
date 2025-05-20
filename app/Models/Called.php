@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Called extends Model
 {
@@ -42,5 +43,9 @@ class Called extends Model
     public function calledType(): BelongsTo
     {
         return $this->belongsTo(CalledType::class);
+    }
+    public function interactions(): HasMany
+    {
+        return $this->hasMany(Interaction::class);
     }
 }

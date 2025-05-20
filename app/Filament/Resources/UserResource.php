@@ -238,8 +238,8 @@ class UserResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->label('Nome')->searchable(),
-                TextColumn::make('email')->label('E-mail'),
-                TextColumn::make('roles.name')->label('Perfil')->badge()->color('primary'),
+                TextColumn::make('email')->label('E-mail')->searchable(),
+                TextColumn::make('roles.name')->label('Perfil')->badge()->color('primary')->searchable(),
             ])
             ->defaultSort('name')
             ->filters([

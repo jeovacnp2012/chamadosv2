@@ -14,6 +14,7 @@ class CreateCalled extends CreateRecord
     protected static string $resource = CalledResource::class;
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+
         if (! auth()->user()?->hasRole('Super Admin')) {
             $data['user_id'] = auth()->id(); // força o ID do usuário logado
         }

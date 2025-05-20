@@ -19,4 +19,12 @@ class EditCalled extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (! auth()->user()?->hasRole('Super Admin')) {
+            $data['user_id'] = auth()->id(); // força o ID do usuário logado
+        }
+
+        return $data;
+    }
 }

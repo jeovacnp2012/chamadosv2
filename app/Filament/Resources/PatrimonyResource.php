@@ -188,50 +188,58 @@ class PatrimonyResource extends Resource
                     ->trueLabel('Somente ativos')
                     ->falseLabel('Somente inativos')
                     ->default(true),
-                Filter::make('setores')
-                    ->label('Setores')
-                    ->form([
-                        MultiSelect::make('sector_ids')
-                            ->label('Setores')
-                            ->options(fn () => auth()->user()->hasRole('Super Admin')
-                                ? Sector::orderBy('name')->pluck('name', 'id')
-                                : auth()->user()->sectors->pluck('name', 'id'))
-                            ->searchable(),
-                    ])
-                    ->query(function ($query, array $data) {
-                        if (filled($data['sector_ids'])) {
-                            $query->whereIn('sector_id', $data['sector_ids']);
-                        }
-                    }),
-                Filter::make('departamentos')
-                    ->label('Departamentos')
+
+                Filter::make('filtro_departamento_setor')
+                    ->label('Filtro por Departamento e Setor')
                     ->form([
                         MultiSelect::make('departament_ids')
                             ->label('Departamentos')
                             ->searchable()
+                            ->live()
                             ->options(function () {
                                 $user = auth()->user();
-                                // Se Super Admin, pode tudo
                                 if ($user->hasRole('Super Admin')) {
                                     return Departament::orderBy('name')->pluck('name', 'id');
                                 }
-                                // Caso contrário, só departamentos dos setores que ele tem acesso
-                                return $user->sectors
-                                    ->load('departament') // carrega departamentos relacionados
-                                    ->pluck('departament') // pega os objetos departament
-                                    ->unique('id') // evita duplicatas
+                                return $user->sectors()
+                                    ->with('departament')
+                                    ->get()
+                                    ->pluck('departament')
+                                    ->filter()
+                                    ->unique('id')
                                     ->sortBy('name')
-                                    ->pluck('name', 'id'); // monta o array [id => nome]
-                            }),
+                                    ->pluck('name', 'id');
+                            })
+                            ->placeholder('Selecione os departamentos'),
+                        MultiSelect::make('sector_ids')
+                            ->label('Setores')
+                            ->searchable()
+                            ->live()
+                            ->options(function (callable $get) {
+                                $departamentIds = $get('departament_ids');
+                                $user = auth()->user();
+                                if (empty($departamentIds)) {
+                                    return [];
+                                }
+                                $query = Sector::query()->whereIn('departament_id', $departamentIds);
+                                if (!$user->hasRole('Super Admin')) {
+                                    $query->whereIn('id', $user->sectors->pluck('id'));
+                                }
+                                return $query->orderBy('name')->pluck('name', 'id');
+                            })
+                            ->disabled(fn (callable $get) => empty($get('departament_ids')))
                     ])
+                    ->columnSpanFull(2)
                     ->query(function ($query, array $data) {
-                        if (filled($data['departament_ids'])) {
-                            // Busca os setores cujos departamentos estejam entre os selecionados
+                        if (!empty($data['departament_ids'])) {
                             $query->whereHas('sector.departament', function ($q) use ($data) {
                                 $q->whereIn('id', $data['departament_ids']);
                             });
                         }
-                    })
+                        if (!empty($data['sector_ids'])) {
+                            $query->whereIn('sector_id', $data['sector_ids']);
+                        }
+                    }),
             ])
             ->filtersFormColumns(2)
             ->actions([

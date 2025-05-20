@@ -2,16 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Traits\ChecksResourcePermission;
 use App\Models\Patrimony;
 use App\Models\Sector;
-use App\Models\Supplier;
 use App\Models\User;
-use App\Traits\ChecksResourcePermission;
-
+use App\Filament\Resources\CalledResource\Pages\ChatPage;
 use App\Filament\Resources\CalledResource\Pages;
 use App\Filament\Resources\CalledResource\RelationManagers;
 use App\Models\Called;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -21,6 +19,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -50,12 +49,7 @@ class CalledResource extends Resource
                         ->relationship('calledType', 'name')
                         ->required()
                         ->native(false)
-                        ->live()
-                        ->afterStateUpdated(function ($state, $set) {
-                            if ($state != 1) { // 1 seria o ID de 'Patrimônio'
-                                $set('patrimony_id', null);
-                            }
-                        }),
+                        ->live(),
                     Grid::make()
                         ->schema([
                             TextInput::make('protocol')
@@ -96,77 +90,43 @@ class CalledResource extends Resource
                                     ->preload(5)
                                     ->live()
                                     ->required(),
-//                                Select::make('patrimony_id')
-//                                    ->label('Patrimônio')
-//                                    ->options(function (callable $get, ?string $search = null) {
-//                                        $tipoChamado = $get('patrimony');
-//                                        // Serviços Gerais: sempre uma única opção fixa
-//                                        if ($tipoChamado === '0') {
-//                                            return [0 => '0 · Serviços Gerais'];
-//                                        }
-//                                        // Se for Patrimonial, verifica se tem setor selecionado
-//                                        $sectorId = $get('sector_id');
-//                                        if (!$sectorId) {
-//                                            return [];
-//                                        }
-//                                        // Busca patrimônios ativos do setor, excluindo os que são "Serviços Gerais"
-//                                        $query = Patrimony::where('sector_id', $sectorId)
-//                                            ->where('is_active', true)
-//                                            ->where('description', 'not like', '%Serviços Gerais%');
-//                                        if ($search) {
-//                                            $query->where(function ($q) use ($search) {
-//                                                $q->where('tag', 'like', "%{$search}%")
-//                                                    ->orWhere('description', 'like', "%{$search}%");
-//                                            });
-//                                        }
-//                                        return $query->orderBy('tag')->get()->mapWithKeys(function ($p) {
-//                                            return [$p->id => "{$p->tag} · {$p->description}"];
-//                                        });
-//                                    })
-//                                    ->disabled(function (callable $get) {
-//                                        $tipoChamado = $get('patrimony');
-//                                        if ($tipoChamado === null) {
-//                                            return true; // Desabilita se não escolheu o tipo
-//                                        }
-//                                        if ($tipoChamado === '0') {
-//                                            return false; // Sempre habilitado para Serviços Gerais
-//                                        }
-//                                        return blank($get('sector_id')); // Patrimonial exige setor
-//                                    })
-//                                    ->searchable()
-//                                    ->preload(5)
-//                                    ->reactive()
-//                                    ->live()
-//                                    ->required(),
+
                                 Select::make('patrimony_id')
                                     ->label('Patrimônio')
                                     ->options(function (callable $get, ?string $search = null) {
-                                        if ($get('called_type_id') != 1) { // Não é patrimônio
+                                        $tipoChamado = $get('called_type_id');
+                                        $sectorId = $get('sector_id');
+                                        if (!$sectorId || !$tipoChamado) {
                                             return [];
                                         }
+                                        $query = Patrimony::where('sector_id', $sectorId);
 
-                                        $sectorId = $get('sector_id');
-                                        if (!$sectorId) return [];
-
-                                        $query = Patrimony::where('sector_id', $sectorId)
-                                            ->where('is_active', true);
-
+                                        if ($tipoChamado == 2) {
+                                            // Serviços Gerais → apenas tag = 0
+                                            $query->where('tag', 0);
+                                        } elseif ($tipoChamado == 1) {
+                                            // Patrimonial → tag > 0 e ativos
+                                            $query->where('tag', '>', 0)->where('is_active', true);
+                                        } else {
+                                            return [];
+                                        }
                                         if ($search) {
                                             $query->where(function ($q) use ($search) {
                                                 $q->where('tag', 'like', "%{$search}%")
                                                     ->orWhere('description', 'like', "%{$search}%");
                                             });
                                         }
-
-                                        return $query->orderBy('tag')->get()
-                                            ->mapWithKeys(fn ($p) => [$p->id => "{$p->tag} · {$p->description}"]);
+                                        return $query->orderBy('tag')->get()->mapWithKeys(function ($p) {
+                                            return [$p->id => "{$p->tag} · {$p->description}"];
+                                        });
                                     })
-                                    ->required(fn (callable $get) => $get('called_type_id') == 1)
-                                    ->disabled(fn (callable $get) =>
-                                        $get('called_type_id') != 1 || blank($get('sector_id'))
-                                    )
+                                    ->visible(fn (callable $get) => in_array($get('called_type_id'), [1, 2])) // mostra para ambos os tipos
+                                    ->dehydrated(fn (callable $get) => true) // sempre salva no banco
                                     ->searchable()
-                                    ->preload(5),
+                                    ->preload(5)
+                                    ->reactive()
+                                    ->live()
+                                    ->required(),
                                 Select::make('supplier_id')
                                     ->label('Executor')
                                     ->options(function (?string $search = null) {
@@ -192,23 +152,30 @@ class CalledResource extends Resource
                                 ->rows(3)
                                 ->required()
                             ->columnSpanFull(),
-
-                            DatePicker::make('closing_date')
-                                ->label('Data de Fechamento')
-                                ->columnSpanFull(),
-
-                            Select::make('status')
-                                ->label('Status')
-                                ->options([
-                                    'A' => 'Aberto',
-                                    'F' => 'Fechado',
-                                ])
-                                ->default('A')
-                                ->required()
-                                ->visible(fn (string $context) => $context === 'edit')
-                                ->dehydrated(),
+                            Grid::make(['default' => 1, 'md' => 2])
+                                ->schema([
+                                    DatePicker::make('closing_date')
+                                        ->label('Data de Fechamento')
+                                        ->visible(fn (string $context) => $context === 'edit')
+                                        ->live()
+                                        ->afterStateUpdated(function ($state, callable $set) {
+                                            // Se tem data => Fechado (F), senão => Aberto (A)
+                                            $set('status', $state ? 'F' : 'A');
+                                        }),
+                                    Select::make('status')
+                                        ->label('Status')
+                                        ->options([
+                                            'A' => 'Aberto',
+                                            'F' => 'Fechado',
+                                        ])
+                                        ->default('A')
+                                        ->required()
+                                        ->visible(fn (string $context) => $context === 'edit')
+                                        ->disabled(fn (callable $get) => $get('status') === 'F')
+                                        ->dehydrated(true),
+                                ]),
                         ])
-                        ->visible(fn (callable $get) => filled($get('patrimony'))),
+                        ->visible(fn (callable $get) => filled($get('called_type_id'))),
                 ]),
         ]);
     }
@@ -311,7 +278,13 @@ class CalledResource extends Resource
                     ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),
                     EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
                     DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
-                ])
+                    Action::make('chat')
+                        ->label('Chat')
+                        ->icon('heroicon-o-chat-bubble-left-right')
+                        ->url(fn ($record) => route('filament.admin.resources.calleds.chat-page', $record))
+                        ->url(fn ($record) => ChatPage::getUrl(['record' => $record])),
+                    ])
+
                     ->button()
                     ->label('Ações'),
             ])
@@ -353,6 +326,7 @@ class CalledResource extends Resource
             'index' => Pages\ListCalleds::route('/'),
             'create' => Pages\CreateCalled::route('/create'),
             'edit' => Pages\EditCalled::route('/{record}/edit'),
+            'chat' => ChatPage::route('/{record}/chat'),
         ];
     }
 }
