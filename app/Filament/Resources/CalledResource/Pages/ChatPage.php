@@ -3,32 +3,19 @@
 namespace App\Filament\Resources\CalledResource\Pages;
 
 use App\Filament\Resources\CalledResource;
-use App\Models\Called;
 use Filament\Resources\Pages\Page;
-use Illuminate\Contracts\View\View;
+use App\Models\Called;
 
 class ChatPage extends Page
 {
+    public Called $record;
+
     protected static string $resource = CalledResource::class;
 
-    protected static string $view = 'livewire.called-chat';
-
-    public ?Called $record = null;
+    protected static string $view = 'filament.resources.called-resource.pages.chat-page';
 
     public function mount(Called $record): void
     {
         $this->record = $record;
-    }
-
-    public function getTitle(): string
-    {
-        return 'Chat do Chamado';
-    }
-
-    public function render(): View
-    {
-        return view(static::$view, [
-            'record' => $this->record,
-        ]);
     }
 }

@@ -6,7 +6,6 @@ use App\Traits\ChecksResourcePermission;
 use App\Models\Patrimony;
 use App\Models\Sector;
 use App\Models\User;
-use App\Filament\Resources\CalledResource\Pages\ChatPage;
 use App\Filament\Resources\CalledResource\Pages;
 use App\Filament\Resources\CalledResource\RelationManagers;
 use App\Models\Called;
@@ -280,13 +279,12 @@ class CalledResource extends Resource
                     DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
                     Action::make('chat')
                         ->label('Chat')
+                        ->url(fn ($record) => CalledResource::getUrl('chat', ['record' => $record]))
                         ->icon('heroicon-o-chat-bubble-left-right')
-                        ->url(fn ($record) => route('filament.admin.resources.calleds.chat-page', $record))
-                        ->url(fn ($record) => ChatPage::getUrl(['record' => $record])),
-                    ])
-
-                    ->button()
-                    ->label('Ações'),
+                        ->color('primary'),
+                ])
+                ->button()
+                ->label('Ações'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -326,7 +324,7 @@ class CalledResource extends Resource
             'index' => Pages\ListCalleds::route('/'),
             'create' => Pages\CreateCalled::route('/create'),
             'edit' => Pages\EditCalled::route('/{record}/edit'),
-            'chat' => ChatPage::route('/{record}/chat'),
+            'chat' => Pages\ChatPage::route('/{record}/chat'),
         ];
     }
 }
