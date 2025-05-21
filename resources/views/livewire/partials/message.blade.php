@@ -1,40 +1,40 @@
-<div class="p-3 border border-gray-300 rounded-xl bg-white shadow-sm">
-    <div class="flex items-center justify-between mb-1">
-        <span class="font-semibold text-gray-700">{{ $message->user->name ?? 'Usuário Desconhecido' }}</span>
-        <span class="text-gray-400">{{ $message->created_at->format('d/m/Y H:i') }}</span>
-    </div>
-    <div class="text-gray-800">{{ $message->message }}</div>
+<div class="bg-white border rounded shadow-sm p-3 mb-2">
+    <div class="flex items-center justify-between gap-4">
+        {{-- Lado esquerdo: conteúdo da mensagem --}}
+        <div class="flex-1">
+            <div class="text-xs text-gray-600 font-semibold uppercase">
+                {{ $message->user->name }}
+            </div>
 
-    @if ($message->attachment_path)
-        @php $ext = pathinfo($message->attachment_path, PATHINFO_EXTENSION); @endphp
-        <div class="mt-2">
-            @if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif']))
-                <img src="{{ asset('storage/' . $message->attachment_path) }}" class="max-w-xs rounded shadow border">
-            @elseif (in_array($ext, ['mp4', 'webm']))
-                <video controls class="max-w-xs rounded shadow border">
-                    <source src="{{ asset('storage/' . $message->attachment_path) }}" type="video/{{ $ext }}">
-                </video>
-            @else
-                <a href="{{ asset('storage/' . $message->attachment_path) }}" target="_blank" class="text-blue-600 underline">
-                    📎 Baixar anexo ({{ strtoupper($ext) }})
-                </a>
+            <div class="text-sm text-gray-800 whitespace-pre-line">
+                {{ $message->message }}
+            </div>
+
+            @if ($message->attachment_path)
+                <div class="mt-1 mb-2">
+                    <a href="{{ Storage::url($message->attachment_path) }}"
+                       target="_blank"
+                       class="text-blue-600 underline text-xs">
+                        Ver Anexo ({{ strtoupper(pathinfo($message->attachment_path, PATHINFO_EXTENSION)) }})
+                    </a>
+                </div>
             @endif
-        </div>
-    @endif
-    <div class="text-right mt-2">
-        <x-filament::button
-            x-data
-            x-on:click="$wire.call('handleEditRequest', {{ $message->id }})"
-            icon="heroicon-o-pencil"
-            size="sm"
-        >
-            Editar
-        </x-filament::button>
-    </div>
 
+            <div class="text-xs text-gray-400 mt-3">
+                {{ $message->created_at->format('d/m/Y H:i') }}
+            </div>
+        </div>
+
+        {{-- Lado direito: botão Excluir --}}
+        <div class="flex-shrink-0 ml-2">
+            <x-filament::button
+                color="danger"
+                size="sm"
+                wire:click="deleteMessage({{ $message->id }})"
+                icon="heroicon-o-trash"
+            >
+                Excluir
+            </x-filament::button>
+        </div>
+    </div>
 </div>
-{{--<script>--}}
-{{--    window.addEventListener('open-edit-modal', e => {--}}
-{{--        console.log('Livewire escutou open-edit-modal:', e.detail);--}}
-{{--    });--}}
-{{--</script>--}}

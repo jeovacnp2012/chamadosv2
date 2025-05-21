@@ -3,8 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\Called;
+use App\Models\Interaction;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Log;
 
 class CalledMessages extends Component
 {
@@ -12,27 +14,116 @@ class CalledMessages extends Component
 
     public Called $called;
     public $showMore = false;
+    public $editingMessageId = null;
+    public $editingMessageText = '';
+    public $showEditModal = false;
 
-    protected $listeners = ['message-sent' => '$refresh'];
+    // Livewire 3 usa dispatch em vez de listeners
+    protected function getListeners()
+    {
+        return ['message-sent' => '$refresh'];
+    }
+
+    public function mount(Called $called)
+    {
+        $this->called = $called;
+    }
+
+    // Certifique-se de que este método é público
+    public function openEditModal($id)
+    {
+        Log::info('openEditModal chamado com ID: ' . $id);
+
+        try {
+            $message = Interaction::findOrFail($id);
+
+            // Verificar se a mensagem ainda pode ser editada
+            if ($message->created_at->diffInHours(now()) >= 8) {
+                $this->dispatch('notify', [
+                    'type' => 'error',
+                    'message' => 'Não é mais possível editar esta mensagem. Prazo de 8h expirado.'
+                ]);
+                return;
+            }
+
+            $this->editingMessageId = $message->id;
+            $this->editingMessageText = $message->message;
+            $this->showEditModal = true;
+
+            Log::info('Modal deve ser exibido agora', [
+                'showEditModal' => $this->showEditModal,
+                'editingMessageId' => $this->editingMessageId
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erro ao abrir modal: ' . $e->getMessage());
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'message' => 'Erro ao abrir o modal. Por favor, tente novamente.'
+            ]);
+        }
+    }
+
+    public function saveEditedMessage()
+    {
+        $this->validate([
+            'editingMessageText' => 'required|string|min:2',
+        ]);
+
+        try {
+            $message = Interaction::findOrFail($this->editingMessageId);
+
+            // Verificar novamente se a mensagem ainda pode ser editada
+            if ($message->created_at->diffInHours(now()) >= 8) {
+                $this->dispatch('notify', [
+                    'type' => 'error',
+                    'message' => 'Não é mais possível editar esta mensagem. Prazo de 8h expirado.'
+                ]);
+                return;
+            }
+
+            $message->message = $this->editingMessageText;
+            $message->save();
+
+            $this->reset(['editingMessageId', 'editingMessageText', 'showEditModal']);
+            $this->dispatch('message-sent');
+
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'message' => 'Mensagem atualizada com sucesso!'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erro ao salvar mensagem editada: ' . $e->getMessage());
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'message' => 'Erro ao salvar a mensagem. Por favor, tente novamente.'
+            ]);
+        }
+    }
+
     public function showMoreMessages()
     {
         $this->showMore = true;
     }
+
     public function render()
     {
-//        return view('livewire.called-messages', [
-//            'messages' => $this->called->interactions()
-//                ->with('user')
-//                ->latest()
-//                ->paginate(5),
-//        ]);
         $baseQuery = $this->called->interactions()->with('user')->latest();
 
         return view('livewire.called-messages', [
-            'recentMessages' => $baseQuery->take(3)->get(),
+            'recentMessages' => $baseQuery->paginate(5),
             'olderMessages' => $this->showMore
-        ? $baseQuery->skip(3)->paginate(10)
+                ? $baseQuery->skip(3)->paginate(10)
                 : collect(),
+        ]);
+    }
+    public function deleteMessage($id)
+    {
+        $message = $this->called->interactions()->findOrFail($id);
+        $message->delete();
+
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'message' => 'Mensagem excluída com sucesso.',
         ]);
     }
 }

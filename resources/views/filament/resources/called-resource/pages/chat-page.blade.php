@@ -24,36 +24,45 @@
         </div>
     </div>
 
-    {{-- Botão abrir modal --}}
+    {{-- Botão abrir modal de nova mensagem --}}
     <div class="mb-4">
         <x-filament::button color="primary" x-data @click="$dispatch('open-send-message')">
             Nova Mensagem
         </x-filament::button>
     </div>
 
-    {{-- Componente de mensagens Livewire --}}
+    {{-- Lista de mensagens --}}
     <livewire:called-messages :called="$record" />
 
-    {{-- Componentes obrigatórios e montados --}}
+    {{-- Formulário de envio de nova mensagem --}}
     <livewire:send-message-form :called="$record" />
-    <livewire:edit-message-modal wire:key="edit-message-modal" />
 
-    {{-- Notificações Livewire --}}
+    {{-- Componente do modal de edição de mensagem --}}
+{{--    <livewire:edit-message-modal wire:key="edit-message-modal" />--}}
+
+    {{-- Notificações via Livewire --}}
     <script>
-        window.addEventListener('notify', event => {
-            window.Filament?.notifications?.notify({
-                type: event.detail.type,
-                title: event.detail.message,
-            });
-        });
-
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('open-edit-modal', (data) => {
-                const component = Livewire.find(
-                    document.querySelector('[wire\\:key="edit-message-modal"]').getAttribute('wire:id')
-                );
-                component.call('handleEditRequest', data.id);
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('notify', event => {
+                window.Filament?.notifications?.notify({
+                    type: event.type,
+                    title: event.message,
+                });
             });
         });
     </script>
+
 </x-filament::page>
+<script>
+    Livewire.on('notify', ({ type, message }) => {
+        window.Filament?.notifications?.notify({ type, title: message });
+    });
+</script>
+<script>
+    Livewire.on('notify', ({ type, message }) => {
+        window.Filament?.notifications?.notify({
+            type: type,
+            title: message,
+        });
+    });
+</script>

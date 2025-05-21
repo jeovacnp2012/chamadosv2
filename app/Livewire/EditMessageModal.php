@@ -3,28 +3,26 @@
 namespace App\Livewire;
 
 use App\Models\Interaction;
-use Carbon\Carbon;
 use Livewire\Component;
 
 class EditMessageModal extends Component
 {
-    public $messageId;
-    public $message;
-    public $showModal = false;
+    public $editingMessageId;
+    public $editingMessageText;
+    public $showEditModal = false;
 
     protected $listeners = ['open-edit-modal' => 'handleEditRequest'];
 
-    public function mount()
+    public function handleEditRequest($payload = null)
     {
-        // Deixe vazio. Não aceite parâmetros aqui.
-    }
+        $id = is_array($payload) ? ($payload['id'] ?? null) : $payload;
 
-    public function handleEditRequest($id)
-    {
-        $msg = Interaction::findOrFail($id);
+        if (! $id) return;
 
-        $this->messageId = $msg->id;
-        $this->message = $msg->message;
+        $msg = \App\Models\Interaction::findOrFail($id);
+
+        $this->editingMessageId = $msg->id;
+        $this->editingMessageText = $msg->message;
 
         if ($msg->created_at->diffInHours(now()) >= 8) {
             $this->dispatch('notify', [
@@ -34,29 +32,20 @@ class EditMessageModal extends Component
             return;
         }
 
-        $this->showModal = true;
+        $this->showEditModal = true;
     }
 
-    public function save()
+    public function saveEditedMessage()
     {
         $this->validate([
-            'message' => 'required|string|min:2',
+            'editingMessageText' => 'required|string|min:2',
         ]);
 
-        $msg = Interaction::findOrFail($this->messageId);
-
-        if ($msg->created_at->diffInHours(now()) >= 8) {
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'message' => 'Não é mais possível editar esta mensagem. Prazo de 8h expirado.'
-            ]);
-            return;
-        }
-
-        $msg->message = $this->message;
+        $msg = Interaction::findOrFail($this->editingMessageId);
+        $msg->message = $this->editingMessageText;
         $msg->save();
 
-        $this->reset(['messageId', 'message', 'showModal']);
+        $this->reset(['editingMessageId', 'editingMessageText', 'showEditModal']);
         $this->dispatch('message-sent');
     }
 
