@@ -22,4 +22,8 @@ class Interaction extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function getAttachmentUrlAttribute(): ?string
+    {
+        return $this->attachment_path ? asset('storage/' . $this->attachment_path) : null;
+    }
 }

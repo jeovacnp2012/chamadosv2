@@ -278,10 +278,12 @@ class CalledResource extends Resource
                     EditAction::make()->label('Editar')->icon('heroicon-o-pencil'),
                     DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
                     Action::make('chat')
-                        ->label('Chat')
-                        ->url(fn ($record) => CalledResource::getUrl('chat', ['record' => $record]))
                         ->icon('heroicon-o-chat-bubble-left-right')
-                        ->color('primary'),
+                        ->tooltip('Abrir chat deste chamado')
+                        ->url(fn ($record) => route('filament.admin.resources.calleds.chat', ['record' => $record]))
+                        ->label(fn () => __('Chat')) // ou ->label(null) para só ícone
+                        ->color('info')
+                        ->hiddenLabel() // texto escondido em telas pequenas
                 ])
                 ->button()
                 ->label('Ações'),
@@ -324,7 +326,7 @@ class CalledResource extends Resource
             'index' => Pages\ListCalleds::route('/'),
             'create' => Pages\CreateCalled::route('/create'),
             'edit' => Pages\EditCalled::route('/{record}/edit'),
-            'chat' => Pages\ChatPage::route('/{record}/chat'),
+            'chat' => Pages\ChatPage::route('/{record}/chat'), // 👈 Aqui
         ];
     }
 }
