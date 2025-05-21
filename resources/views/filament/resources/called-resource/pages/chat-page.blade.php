@@ -36,7 +36,7 @@
 
     {{-- Componentes obrigatórios e montados --}}
     <livewire:send-message-form :called="$record" />
-    <livewire:edit-message-modal />
+    <livewire:edit-message-modal wire:key="edit-message-modal" />
 
     {{-- Notificações Livewire --}}
     <script>
@@ -44,6 +44,15 @@
             window.Filament?.notifications?.notify({
                 type: event.detail.type,
                 title: event.detail.message,
+            });
+        });
+
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('open-edit-modal', (data) => {
+                const component = Livewire.find(
+                    document.querySelector('[wire\\:key="edit-message-modal"]').getAttribute('wire:id')
+                );
+                component.call('handleEditRequest', data.id);
             });
         });
     </script>

@@ -12,6 +12,7 @@ class EditMessageModal extends Component
     public $message;
     public $showModal = false;
 
+    protected $listeners = ['open-edit-modal' => 'handleEditRequest'];
 
     public function mount()
     {
@@ -20,13 +21,13 @@ class EditMessageModal extends Component
 
     public function handleEditRequest($id)
     {
-        $msg = \App\Models\Interaction::findOrFail($id);
+        $msg = Interaction::findOrFail($id);
 
         $this->messageId = $msg->id;
         $this->message = $msg->message;
 
         if ($msg->created_at->diffInHours(now()) >= 8) {
-            $this->dispatchBrowserEvent('notify', [
+            $this->dispatch('notify', [
                 'type' => 'error',
                 'message' => 'Não é mais possível editar esta mensagem. Prazo de 8h expirado.'
             ]);
@@ -45,9 +46,9 @@ class EditMessageModal extends Component
         $msg = Interaction::findOrFail($this->messageId);
 
         if ($msg->created_at->diffInHours(now()) >= 8) {
-            $this->dispatchBrowserEvent('notify', [
+            $this->dispatch('notify', [
                 'type' => 'error',
-                'message' => 'Prazo para edição expirou (8h).'
+                'message' => 'Não é mais possível editar esta mensagem. Prazo de 8h expirado.'
             ]);
             return;
         }
@@ -64,4 +65,3 @@ class EditMessageModal extends Component
         return view('livewire.edit-message-modal');
     }
 }
-

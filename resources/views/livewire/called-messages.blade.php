@@ -1,4 +1,4 @@
-<div>
+<div class="space-y-3">
     {{-- Mensagens Recentes --}}
     @foreach ($recentMessages as $message)
         <div class="p-3 border border-gray-300 rounded-xl bg-white shadow-sm text-xs">
@@ -34,7 +34,6 @@
                 >
                     Editar
                 </x-filament::button>
-
             </div>
         </div>
     @endforeach
@@ -96,8 +95,3 @@
         </div>
     @endif
 </div>
-{{--<script>--}}
-{{--    window.addEventListener('open-edit-modal', e => {--}}
-{{--        console.log('Livewire escutou open-edit-modal:', e.detail);--}}
-{{--    });--}}
-{{--</script>--}}
