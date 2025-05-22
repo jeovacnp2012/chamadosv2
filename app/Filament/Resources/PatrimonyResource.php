@@ -257,18 +257,6 @@ class PatrimonyResource extends Resource
                 ]),
             ]);
     }
-//    public static function getEloquentQuery(): Builder
-//    {
-//        $query = parent::getEloquentQuery();
-//
-//        if (! auth()->user()?->hasRole('Super Admin')) {
-//            $query->whereHas('sector.department.company', function ($q) {
-//                $q->where('id', auth()->user()->company_id);
-//            });
-//        }
-//
-//        return $query;
-//    }
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();

@@ -35,10 +35,21 @@
     <livewire:called-messages :called="$record" />
 
     {{-- Formulário de envio de nova mensagem --}}
-    <livewire:send-message-form :called="$record" />
+    <div class="mt-4 no-print">
+        <livewire:send-message-form :called="$record" />
+    </div>
+
 
     {{-- Componente do modal de edição de mensagem --}}
 {{--    <livewire:edit-message-modal wire:key="edit-message-modal" />--}}
+    //CSS manual para esconder o componente evio de mensagem no print
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
 
     {{-- Notificações via Livewire --}}
     <script>
@@ -66,3 +77,4 @@
         });
     });
 </script>
+

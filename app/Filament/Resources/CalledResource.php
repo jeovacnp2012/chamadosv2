@@ -24,8 +24,12 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class CalledResource extends Resource
 {
@@ -182,6 +186,11 @@ class CalledResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('protocol')
+            ->filtersTriggerAction(fn(Action $action) =>
+            $action->icon('heroicon-s-adjustments-vertical')
+                ->slideOver()
+            )
             ->columns([
                 TextColumn::make('protocol')
                     ->label('Protocolo')
@@ -254,7 +263,7 @@ class CalledResource extends Resource
                     ->color(fn($state) => $state === 'F' ? 'success' : 'warning')
                     ->extraAttributes(responsiveColumnToggle(hideInMobile: true)['extraAttributes'])
                     ->extraHeaderAttributes(responsiveColumnToggle(hideInMobile: true)['extraHeaderAttributes'])
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('type_maintenance')
                     ->label('Tipo')
                     ->badge()
@@ -270,8 +279,81 @@ class CalledResource extends Resource
             ])
             ->defaultSort('id', 'desc')
             ->filters([
-                //
+                // Status
+                SelectFilter::make('status_aberto')
+                    ->label('Filtro de Abertos')
+                    ->options([
+                        'somente' => 'Somente Abertos',
+                        'exceto' => 'Exceto Abertos',
+                    ])
+                    ->placeholder('Todos os status')
+                    ->default('somente') // 👈 filtro pré-aplicado
+                    ->query(function ($query, array $data) {
+                        return match ($data['status_aberto'] ?? null) {
+                            'somente' => $query->where('status', 'A'),
+                            'exceto' => $query->where('status', '!=', 'A'),
+                            default => $query,
+                        };
+                    }),
+
+                // Setor
+                Filter::make('sector')
+                    ->label('Setor')
+                    ->form([
+                        Select::make('sector_id')
+                            ->label('Setor Responsável')
+                            ->options(function () {
+                                $user = Auth::user();
+                                // Super Admin vê todos os setores
+                                if ($user->hasRole('Super Admin')) {
+                                    return \App\Models\Sector::pluck('name', 'id');
+                                }
+                                // Demais usuários veem apenas os setores vinculados
+                                return $user->sectors()->pluck('name', 'id');
+                            })
+                            ->searchable()
+                            ->preload(),
+                    ])
+                    ->query(fn ($query, $data) => $query->when($data['sector_id'], fn ($q) => $q->where('sector_id', $data['sector_id']))),
+
+                // Executor
+                Filter::make('supplier')
+                    ->label('Fornecedor')
+                    ->form([
+                        Select::make('supplier_id')
+                            ->label('Fornecedor')
+                            ->relationship('supplier', 'trade_name') // `supplier()` => belongsTo Supplier
+                            ->searchable()
+                            ->preload(),
+                    ])
+                    ->query(fn ($query, $data) => $query->when($data['supplier_id'], fn ($q) => $q->where('supplier_id', $data['supplier_id']))),
+
+                // Patrimônio
+                Filter::make('patrimony')
+                    ->label('Patrimônio')
+                    ->form([
+                        Select::make('patrimony_id')
+                            ->label('Plaqueta / Patrimônio')
+                            ->relationship('patrimony', 'tag') // `patrimony()` => belongsTo Patrimony
+                            ->searchable()
+                            ->preload(),
+                    ])
+                    ->query(fn ($query, $data) => $query->when($data['patrimony_id'], fn ($q) => $q->where('patrimony_id', $data['patrimony_id']))),
+
+                // Data de criação
+                Filter::make('created_at')
+                    ->label('Data de criação')
+                    ->form([
+                        DatePicker::make('created_from')->label('Criado de'),
+                        DatePicker::make('created_until')->label('Criado até'),
+                    ])
+                    ->query(function ($query, $data) {
+                        $query
+                            ->when($data['created_from'], fn ($q) => $q->whereDate('created_at', '>=', $data['created_from']))
+                            ->when($data['created_until'], fn ($q) => $q->whereDate('created_at', '<=', $data['created_until']));
+                    }),
             ])
+            ->filtersFormColumns(2)
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()->label('Visualizar')->icon('heroicon-o-eye'),

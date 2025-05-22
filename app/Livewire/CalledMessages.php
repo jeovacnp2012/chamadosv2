@@ -110,7 +110,7 @@ class CalledMessages extends Component
         $baseQuery = $this->called->interactions()->with('user')->latest();
 
         return view('livewire.called-messages', [
-            'recentMessages' => $baseQuery->paginate(5),
+            'recentMessages' => $baseQuery->paginate(2),
             'olderMessages' => $this->showMore
                 ? $baseQuery->skip(3)->paginate(10)
                 : collect(),
