@@ -26,11 +26,11 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 class CalledResource extends Resource
 {
     use ChecksResourcePermission;
@@ -278,20 +278,30 @@ class CalledResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('id', 'desc')
+            ->headerActions([
+
+                Action::make('exportar')
+                    ->label('Exportar Chamados')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->link() // importante: gera um <a href="..."> com parâmetros atualizados
+                    ->url(fn () => url('/exportar-chamados') . '?' . request()->getQueryString())
+                    ->openUrlInNewTab(),
+            ])
             ->filters([
                 // Status
                 SelectFilter::make('status_aberto')
                     ->label('Filtro de Abertos')
                     ->options([
-                        'somente' => 'Somente Abertos',
-                        'exceto' => 'Exceto Abertos',
+                        'abertos' => 'Somente Abertos',
+                        'fechados' => 'Somente Fechados',
                     ])
                     ->placeholder('Todos os status')
-                    ->default('somente') // 👈 filtro pré-aplicado
+                    ->default('abertos')
                     ->query(function ($query, array $data) {
-                        return match ($data['status_aberto'] ?? null) {
-                            'somente' => $query->where('status', 'A'),
-                            'exceto' => $query->where('status', '!=', 'A'),
+                        return match ($data['value'] ?? null) {
+                            'abertos' => $query->where('status', 'A'),
+                            'fechados' => $query->where('status', 'F'),
                             default => $query,
                         };
                     }),
