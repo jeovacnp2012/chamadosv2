@@ -1,6 +1,7 @@
 <?php
 
 use App\Exports\CalledsExport;
+use App\Http\Controllers\DataTableController;
 use App\Http\Controllers\SuperTabelaController;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
@@ -31,4 +32,8 @@ Route::get('/chamados-abertos', [SuperTabelaController::class, 'chamadosAbertos'
 
 Route::get('/chamados-fechados', [SuperTabelaController::class, 'chamadosFechados'])
     ->name('relatorios.chamados-fechados')
+    ->middleware(['web', 'auth']);
+
+Route::get('/relatorios/datatables', [DataTableController::class, 'index'])
+    ->name('relatorios.datatables')
     ->middleware(['web', 'auth']);

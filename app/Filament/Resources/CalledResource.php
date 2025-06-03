@@ -285,12 +285,6 @@ class CalledResource extends Resource
 //                    ->link() // importante: gera um <a href="..."> com parâmetros atualizados
 //                    ->url(fn () => url('/exportar-chamados') . '?' . request()->getQueryString())
 //                    ->openUrlInNewTab(),
-//                Action::make('abrirSuperTabela')
-//                    ->label('📊 Super Tabela')
-//                    ->color('gray')
-//                    ->icon('heroicon-o-arrow-top-right-on-square')
-//                    ->url(fn () => route('relatorios.supertabela', request()->query()))
-//                    ->openUrlInNewTab(),
             ])
             ->filters([
                 // Status
