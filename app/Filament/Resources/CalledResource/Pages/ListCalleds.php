@@ -12,6 +12,7 @@ class ListCalleds extends ListRecords
 {
     use ChecksResourcePermission;
     protected static string $resource = CalledResource::class;
+    protected static string $view = 'filament.resources.called-resource.pages.list-calleds';
 
     protected function getHeaderActions(): array
     {

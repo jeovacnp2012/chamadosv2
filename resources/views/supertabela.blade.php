@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SuperTabela 2025</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+    <link
+        href="https://cdn.datatables.net/v/bs5/jq-3.7.0/moment-2.29.4/jszip-3.10.1/dt-2.2.2/af-2.7.0/b-3.2.2/b-colvis-3.2.2/b-html5-3.2.2/b-print-3.2.2/cr-2.0.4/date-1.5.5/fc-5.0.4/fh-4.0.1/kt-2.12.1/r-3.0.4/rg-1.5.1/rr-1.5.0/sc-2.4.3/sb-1.8.2/sp-2.3.3/sl-3.0.0/sr-1.4.1/datatables.min.css"
+        rel="stylesheet" integrity="sha384-wYf859STWTPggciSnTIDCGMabsgGXnODSCOXsmSXYvBU+qa7uYQjrZCTi9/jyzAD"
+        crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"
+            integrity="sha384-VFQrHzqBh5qiJIU0uGU5CIW3+OWpdGGJM9LBnGbuIH2mkICcFZ7lPd/AAtI7SNf7"
+            crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"
+            integrity="sha384-/RlQG9uf0M2vcTw3CX7fbqgbj/h8wKxw7C3zu9/GxcBPRKOEcESxaxufwRXqzq6n"
+            crossorigin="anonymous"></script>
+    <script
+        src="https://cdn.datatables.net/v/bs5/jq-3.7.0/moment-2.29.4/jszip-3.10.1/dt-2.2.2/af-2.7.0/b-3.2.2/b-colvis-3.2.2/b-html5-3.2.2/b-print-3.2.2/cr-2.0.4/date-1.5.5/fc-5.0.4/fh-4.0.1/kt-2.12.1/r-3.0.4/rg-1.5.1/rr-1.5.0/sc-2.4.3/sb-1.8.2/sp-2.3.3/sl-3.0.0/sr-1.4.1/datatables.min.js"
+        integrity="sha384-pdpncyjMFzkxj3N8+5wWQGxGZCFzkWFpInHw4/e5Eg98sIg19W5HYwuEocBQGTtO"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/2.2.2/sorting/datetime-moment.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+          integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"
+            integrity="sha512-6sSYJqDreZRZGkJ3b+YfdhB3MzmuP9R7X1QZ6g5aIXhRvR1Y/N/P47jmnkENm7YL3oqsmI6AK+V6AD99uWDnIw=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/plug-ins/2.2.2/filtering/type-based/diacritics-neutralise.js"></script>
+
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/plug-ins/2.2.2/filtering/type-based/accent-neutralise.js"></script>
+
+
+</head>
+
+<body class="m-5 ">
+<h2 class="h5 fw-bold mb-4">
+    {{ $titulo ?? 'Super Tabela' }}
+</h2>
+<div class="table-responsive mt-6">
+    <table id="supertabela" class="table table-hover table-sm table-loader">
+
+    <thead>
+    <tr>
+        <th>Protocolo</th>
+        <th>Problema</th>
+        <th>Status</th>
+        <th>Setor</th>
+        <th>Criado em</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach ($calleds as $called)
+        <tr>
+            <td>{{ $called->protocol }}</td>
+            <td>{{ $called->problem }}</td>
+            <td>{{ $called->status }}</td>
+            <td>{{ $called->sector->name ?? '-' }}</td>
+            <td>{{ $called->created_at->format('d/m/Y') }}</td>
+        </tr>
+    @endforeach
+
+    </tbody>
+    <tfoot>
+    <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+
+    </tr>
+    </tfoot>
+</table>
+</div>
+<script>
+
+
+
+    $(document).ready(function () {
+        var colunasParaSomar =[]
+        /*var colunasParaSomar = [{
+            index: 2,
+            tipo: 'dinheiro'
+        }, // Preço formatado como moeda
+        {
+            index: 3,
+            tipo: 'numero'
+        }, // Quantidade formatada como número
+        {
+            index: 4,
+            tipo: 'dinheiro'
+        } /// Quantidade formatada como número
+
+        ];*/
+
+        $.fn.dataTable.moment("DD/MM/YYYY");
+        // DataTable.datetime("DD/MM/YYYY");
+
+
+        var table = $("#supertabela").DataTable({
+
+            lengthMenu: [
+                [50, 75, 100, -1],
+                [50, 75, 100, "Tudo"],
+            ],
+            // order: [[3, "asc"]],
+            select: false,
+            keys: true,
+            colReorder: true,
+            /*rowReorder: {
+              selector: 'td:nth-child(2)'
+          },*/
+            stateSave: false,
+            deferRender: true,
+            paging: false,
+            responsive: false,
+            scrollX: true,
+            scrollY: "450px",
+            scrollCollapse: true,
+            fixedHeader: false,
+            columnDefs: [
+
+                {
+                    searchPanes: {
+                        show: true
+                    },
+                    targets: '_all'
+                },
+
+            ],
+
+
+
+            layout: {
+                topStart: ['buttons', 'info'], // Botões com info abaixo
+                topEnd: 'search',              // Campo de busca
+                bottomStart: 'pageLength',     // Seleção de quantos registros por página
+                bottomEnd: 'paging'            // Paginação
+            },
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/2.2.2/i18n/pt-BR.json',
+                thousands: '.',
+                decimal: ',',
+                "searchPlaceholder": "Busca Atomica",
+                "search": "",
+                "info": "Mostrando _TOTAL_ registros",
+                "infoEmpty": "Mostrando 0 registro(s)",
+                "datetime": {
+                    "previous": "Anterior",
+                    "next": "Próximo",
+                    "hours": "Hora",
+                    "minutes": "Minuto",
+                    "seconds": "Segundo",
+                    "amPm": [
+                        "am",
+                        "pm"
+                    ],
+                    "unknown": "-",
+                    "months": {
+                        "0": "Janeiro",
+                        "1": "Fevereiro",
+                        "2": "Março",
+                        "3": "Abril",
+                        "4": "Maio",
+                        "5": "Junho",
+                        "6": "Julho",
+                        "7": "Agosto",
+                        "8": "Setembro",
+                        "9": "Outubro",
+                        "10": "Novembro",
+                        "11": "Dezembro"
+                    },
+                    "weekdays": [
+                        "Dom",
+                        "Seg",
+                        "Ter",
+                        "Qua",
+                        "Qui",
+                        "Sex",
+                        "Sáb"
+                    ]
+                },
+
+                searchBuilder: {
+                    add: "Adicionar Condição",
+                    button: {
+                        0: '<i class="fas fa-filter"></i>',
+                        _: '<i class="fas fa-filter" style="color: #f44336;"></i> (%d)',
+                    },
+                },
+                searchPanes: {
+                    clearMessage: "Limpar Tudo",
+                    collapse: {
+                        0: '<i class="fa-solid fa-magnifying-glass-chart"></i>',
+                        _: '<i class="fa-solid fa-magnifying-glass-chart" style="color: #f44336;"></i> (%d)',
+                    },
+                    count: "{total}",
+                    countFiltered: "{shown} ({total})",
+                    emptyPanes: "Nenhum Painel de Pesquisa",
+                    loadMessage: "Carregando Painéis de Pesquisa...",
+                    title: "Filtros Ativos",
+                    showMessage: "Mostrar todos",
+                    collapseMessage: "Fechar todos",
+                },
+
+            },
+            buttons: [
+                {
+                    extend: "collection",
+                    text: '<i class="fa-solid fa-eye"></i>',
+                    background: true,
+                    autoClose: false,
+                    //fade: 0,
+                    align: "bottom-right",
+                    buttons: ["columnsVisibility"],
+                    titleAttr: "Ocultar/Desocultar",
+                    className: "btn btn-dark me-2 rounded",
+                    title: '{{ $titulo ?? 'Super Tabela' }}',
+                },
+                {
+                    extend: "copyHtml5",
+                    text: '<i class="fa-solid fa-copy"></i> ',
+                    titleAttr: "Copiar Dados",
+                    className: "btn  me-2 rounded",
+                    title: '{{ $titulo ?? 'Super Tabela' }}',
+                    exportOptions: {
+                        columns: ':visible',
+                        format: {
+                            body: function (data, row, column, node) {
+                                let texto = $('<div>').html(data).text().trim();
+
+                                // Se for data no formato dd/mm/yyyy, retorna como está
+                                if (/^\d{2}\/\d{2}\/\d{4}$/.test(texto)) {
+                                    return texto;
+                                }
+
+                                // Se for número com R$ ou similar (ex: "R$ -1.234,56" ou "-123,45")
+                                if (/^-?R?\$?\s?-?\d{1,3}(\.\d{3})*,\d{2}/.test(texto) || /^-?\d+,\d{2}/.test(texto)) {
+                                    const isNegative = texto.includes('-');
+                                    texto = texto.replace(/[^0-9,]/g, '');
+                                    let numero = texto.replace(/\./g, '').replace(',', '.');
+                                    return isNegative ? '-' + numero : numero;
+                                }
+
+                                // Caso contrário, retorna o texto como está
+                                return texto;
+                            },
+                            footer: function (data, row, column, node) {
+                                let texto = $('<div>').html(data).text().trim();
+
+                                if (/^\d{2}\/\d{2}\/\d{4}$/.test(texto)) {
+                                    return texto;
+                                }
+
+                                if (/^-?R?\$?\s?-?\d{1,3}(\.\d{3})*,\d{2}/.test(texto) || /^-?\d+,\d{2}/.test(texto)) {
+                                    const isNegative = texto.includes('-');
+                                    texto = texto.replace(/[^0-9,]/g, '');
+                                    let numero = texto.replace(/\./g, '').replace(',', '.');
+                                    return isNegative ? '-' + numero : numero;
+                                }
+
+                                return texto;
+                            }
+                        }
+
+                    },
+                },
+                {
+                    extend: "excelHtml5",
+                    text: '<i class="fas fa-file-excel"></i> ',
+                    titleAttr: "Exportar a Excel",
+                    autoFilter: true,
+                    className: "btn btn-success me-2 rounded",
+                    title: '{{ $pageTitle ?? 'Super Tabela' }}',
+                    exportOptions: {
+                        columns: ':visible',
+                        format: {
+                            body: function (data, row, column, node) {
+                                let texto = $('<div>').html(data).text().trim();
+
+                                // Se for data no formato dd/mm/yyyy, retorna como está
+                                if (/^\d{2}\/\d{2}\/\d{4}$/.test(texto)) {
+                                    return texto;
+                                }
+
+                                // Se for número com R$ ou similar (ex: "R$ -1.234,56" ou "-123,45")
+                                if (/^-?R?\$?\s?-?\d{1,3}(\.\d{3})*,\d{2}/.test(texto) || /^-?\d+,\d{2}/.test(texto)) {
+                                    const isNegative = texto.includes('-');
+                                    texto = texto.replace(/[^0-9,]/g, '');
+                                    let numero = texto.replace(/\./g, '').replace(',', '.');
+                                    return isNegative ? '-' + numero : numero;
+                                }
+
+                                // Caso contrário, retorna o texto como está
+                                return texto;
+                            },
+                            footer: function (data, row, column, node) {
+                                let texto = $('<div>').html(data).text().trim();
+
+                                if (/^\d{2}\/\d{2}\/\d{4}$/.test(texto)) {
+                                    return texto;
+                                }
+
+                                if (/^-?R?\$?\s?-?\d{1,3}(\.\d{3})*,\d{2}/.test(texto) || /^-?\d+,\d{2}/.test(texto)) {
+                                    const isNegative = texto.includes('-');
+                                    texto = texto.replace(/[^0-9,]/g, '');
+                                    let numero = texto.replace(/\./g, '').replace(',', '.');
+                                    return isNegative ? '-' + numero : numero;
+                                }
+
+                                return texto;
+                            }
+                        }
+
+
+                    }
+                },
+                {
+                    extend: "pdfHtml5",
+                    text: '<i class="fa-solid fa-file-pdf"></i> ',
+                    titleAttr: "Exportar para PDF",
+                    orientation: "landscape",
+                    className: "btn btn-danger me-2 rounded",
+                    title: '{{ $pageTitle ?? 'Super Tabela' }}',
+                    exportOptions: {
+                        columns: ":visible",
+                    },
+                },
+                {
+                    extend: "print",
+                    text: '<i class="fa fa-print"></i> ',
+                    titleAttr: "Imprimir",
+                    className: "btn btn-info me-2 rounded",
+                    title: '{{ $pageTitle ?? 'Super Tabela' }}',
+                    exportOptions: {
+                        columns: ":visible",
+                    },
+                },
+                {
+                    extend: "csv",
+                    text: '<i class="fa-solid fa-file-csv"></i> ',
+                    titleAttr: "Exportar para CSV",
+                    charset: 'utf-8',
+                    fieldSeparator: ';',
+                    fieldBoundary: '',
+                    bom: true,
+                    className: "btn btn-success me-2 rounded",
+                    title: '{{ $pageTitle ?? 'Super Tabela' }}',
+                    exportOptions: {
+                        columns: ':visible',
+                        stripHtml: false,
+                        format: {
+                            body: function (data, row, column, node) {
+                                let texto = $('<div>').html(data).text().trim();
+
+                                // Se for data no formato dd/mm/yyyy, retorna como está
+                                if (/^\d{2}\/\d{2}\/\d{4}$/.test(texto)) {
+                                    return texto;
+                                }
+
+                                // Se for número com R$ ou similar (ex: "R$ -1.234,56" ou "-123,45")
+                                if (/^-?R?\$?\s?-?\d{1,3}(\.\d{3})*,\d{2}/.test(texto) || /^-?\d+,\d{2}/.test(texto)) {
+                                    const isNegative = texto.includes('-');
+                                    texto = texto.replace(/[^0-9,]/g, '');
+                                    let numero = texto.replace(/\./g, '').replace(',', '.');
+                                    return isNegative ? '-' + numero : numero;
+                                }
+
+                                // Caso contrário, retorna o texto como está
+                                return texto;
+                            },
+                            footer: function (data, row, column, node) {
+                                let texto = $('<div>').html(data).text().trim();
+
+                                if (/^\d{2}\/\d{2}\/\d{4}$/.test(texto)) {
+                                    return texto;
+                                }
+
+                                if (/^-?R?\$?\s?-?\d{1,3}(\.\d{3})*,\d{2}/.test(texto) || /^-?\d+,\d{2}/.test(texto)) {
+                                    const isNegative = texto.includes('-');
+                                    texto = texto.replace(/[^0-9,]/g, '');
+                                    let numero = texto.replace(/\./g, '').replace(',', '.');
+                                    return isNegative ? '-' + numero : numero;
+                                }
+
+                                return texto;
+                            }
+                        }
+
+                    },
+                },
+                {
+                    extend: "searchBuilder",
+                    titleAttr: "Busca Personalizada",
+                    className: "btn me-2 btn-warning rounded",
+                    config: {
+                        depthLimit: 2,
+                    },
+                },
+                {
+                    extend: "searchPanes",
+
+                    titleAttr: "Painel de Busca Avançada",
+                    className: "btn me-2 btn-dark rounded",
+                    config: {
+                        cascadePanes: true,
+                        viewTotal: true,
+
+
+                    }
+                }
+
+
+            ],
+
+
+            drawCallback: function (settings) {
+                setTimeout(() => {
+                    parent.document.getElementById('skeleton-container').style.display = 'none';
+                }, 1000); // Aguarda 1 segundo antes de esconder
+
+
+            },
+
+            footerCallback: function (row, data, start, end, display) {
+                var api = this.api();
+                var unformatNumber = function (value) {
+                    if (typeof value === 'string') {
+                        if (value.includes(',') && value.includes('.')) {
+                            return parseFloat(value.replace(/[R$.\s]/g, '').replace(',', '.')) || 0;
+                        } else if (value.includes('.') && !value.includes(',')) {
+                            return parseFloat(value) || 0;
+                        } else {
+                            return parseFloat(value.replace(',', '.')) || 0;
+                        }
+                    }
+                    return typeof value === 'number' ? value : 0;
+                };
+                colunasParaSomar.forEach(function (coluna) {
+                    var total = api
+                        .column(coluna.index, {
+                            page: 'current'
+                        })
+                        .data()
+                        .reduce(function (a, b) {
+                            return unformatNumber(a) + unformatNumber(b);
+                        }, 0);
+                    var textoFormatado = coluna.tipo === 'dinheiro' ?
+                        'R$ ' + total.toLocaleString('pt-BR', {
+                            minimumFractionDigits: 2
+                        }) :
+                        total.toLocaleString('pt-BR', {
+                            minimumFractionDigits: 2
+                        });
+                    var footerCell = $(api.column(coluna.index).footer());
+                    footerCell.html(textoFormatado); // Atualiza o total
+                    footerCell.css('text-align', 'right'); // Alinha à direita diretamente no footer
+                });
+            },
+            createdRow: function (row, data, dataIndex) {
+                colunasParaSomar.forEach(function (coluna) {
+                    $('td:eq(' + coluna.index + ')', row).addClass('text-end'); // Alinha dinamicamente à direita
+                });
+            },
+            columnDefs: colunasParaSomar.map(function (coluna) {
+                return {
+                    targets: [coluna.index],
+                    render: function (data, type, row) {
+                        var valor = typeof data === 'string' ? parseFloat(data.replace(/[^\d,-]/g, '').replace(',', '.')) : data;
+
+                        if (coluna.tipo === 'dinheiro') {
+                            let prefixo = valor < 0 ? '- R$ ' : 'R$ ';
+                            return prefixo + Math.abs(valor).toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        } else {
+                            return valor.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
+                    }
+                };
+            }),
+
+
+        });
+    });
+
+</script>
+<script>let prefers = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    let html = document.querySelector('html');
+
+    html.classList.add(prefers);
+    html.setAttribute('data-bs-theme', prefers);
+</script>
+</body>
+
+</html>

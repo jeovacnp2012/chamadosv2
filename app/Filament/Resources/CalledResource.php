@@ -11,6 +11,7 @@ use App\Filament\Resources\CalledResource\RelationManagers;
 use App\Models\Called;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\MultiSelect;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -29,8 +30,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 class CalledResource extends Resource
 {
     use ChecksResourcePermission;
@@ -279,14 +278,19 @@ class CalledResource extends Resource
             ])
             ->defaultSort('id', 'desc')
             ->headerActions([
-
-                Action::make('exportar')
-                    ->label('Exportar Chamados')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->color('success')
-                    ->link() // importante: gera um <a href="..."> com parâmetros atualizados
-                    ->url(fn () => url('/exportar-chamados') . '?' . request()->getQueryString())
-                    ->openUrlInNewTab(),
+//                Action::make('exportar')
+//                    ->label('Exportar Chamados')
+//                    ->icon('heroicon-o-document-arrow-down')
+//                    ->color('success')
+//                    ->link() // importante: gera um <a href="..."> com parâmetros atualizados
+//                    ->url(fn () => url('/exportar-chamados') . '?' . request()->getQueryString())
+//                    ->openUrlInNewTab(),
+//                Action::make('abrirSuperTabela')
+//                    ->label('📊 Super Tabela')
+//                    ->color('gray')
+//                    ->icon('heroicon-o-arrow-top-right-on-square')
+//                    ->url(fn () => route('relatorios.supertabela', request()->query()))
+//                    ->openUrlInNewTab(),
             ])
             ->filters([
                 // Status
@@ -306,25 +310,25 @@ class CalledResource extends Resource
                         };
                     }),
 
-                // Setor
+                // Setor(es)
                 Filter::make('sector')
-                    ->label('Setor')
+                    ->label('Setores')
                     ->form([
-                        Select::make('sector_id')
-                            ->label('Setor Responsável')
+                        MultiSelect::make('sector_ids')
+                            ->label('Setores Responsáveis')
                             ->options(function () {
                                 $user = Auth::user();
-                                // Super Admin vê todos os setores
-                                if ($user->hasRole('Super Admin')) {
-                                    return \App\Models\Sector::pluck('name', 'id');
-                                }
-                                // Demais usuários veem apenas os setores vinculados
-                                return $user->sectors()->pluck('name', 'id');
+
+                                return $user->hasRole('Super Admin')
+                                    ? \App\Models\Sector::pluck('name', 'id')
+                                    : $user->sectors()->pluck('name', 'id');
                             })
                             ->searchable()
                             ->preload(),
                     ])
-                    ->query(fn ($query, $data) => $query->when($data['sector_id'], fn ($q) => $q->where('sector_id', $data['sector_id']))),
+                    ->query(fn ($query, $data) =>
+                        $query->when($data['sector_ids'], fn ($q) => $q->whereIn('sector_id', $data['sector_ids']))
+                    ),
 
                 // Executor
                 Filter::make('supplier')
@@ -361,6 +365,18 @@ class CalledResource extends Resource
                         $query
                             ->when($data['created_from'], fn ($q) => $q->whereDate('created_at', '>=', $data['created_from']))
                             ->when($data['created_until'], fn ($q) => $q->whereDate('created_at', '<=', $data['created_until']));
+                    }),
+                // Data de fechamento
+                Filter::make('closing_date')
+                    ->label('Data de fechamento')
+                    ->form([
+                        DatePicker::make('closing_from')->label('Fechado de'),
+                        DatePicker::make('closing_until')->label('Fechado até'),
+                    ])
+                    ->query(function ($query, $data) {
+                        $query
+                            ->when($data['closing_from'], fn ($q) => $q->whereDate('closing_date', '>=', $data['closing_from']))
+                            ->when($data['closing_until'], fn ($q) => $q->whereDate('closing_date', '<=', $data['closing_until']));
                     }),
             ])
             ->filtersFormColumns(2)
