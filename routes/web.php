@@ -1,13 +1,27 @@
 <?php
 
 use App\Exports\CalledsExport;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CalledController;
+use App\Http\Controllers\Api\InteractionController;
 use App\Http\Controllers\DataTableController;
 use App\Http\Controllers\SuperTabelaController;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 
+// Fallback para chamadas à rota 'login' (exigida por Sanctum)
+Route::get('/login', function () {
+    return response()->json(['message' => 'Login via navegador desabilitado. Use a API em /api/login.'], 403);
+})->name('login');
+
+// Rotas web normais do seu sistema podem vir abaixo:
+Route::get('/', function () {
+    return view('welcome');
+});
 //Route::get('/', function () {
 //    return view('welcome');
 //});
@@ -37,3 +51,4 @@ Route::get('/chamados-fechados', [SuperTabelaController::class, 'chamadosFechado
 Route::get('/relatorios/datatables', [DataTableController::class, 'index'])
     ->name('relatorios.datatables')
     ->middleware(['web', 'auth']);
+
