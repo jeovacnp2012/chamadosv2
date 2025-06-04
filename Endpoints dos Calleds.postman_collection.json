@@ -1,0 +1,415 @@
+{
+	"info": {
+		"_postman_id": "0b42e8dd-2577-4089-8675-1f1201b03c06",
+		"name": "Endpoints dos Calleds",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11102472"
+	},
+	"item": [
+		{
+			"name": "Login pra pegar token",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"jeovacnp2012@gmail.com\",\r\n  \"password\": \"@Anap354\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/login",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pesquisar chamados com filtros",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "6|4068oJwTXxyJYC8r43QzXk5ml7LEChI8tpswirtG3179ccb4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/calleds?tableFilters[status_aberto][value]=abertos&tableFilters[sector][sector_ids][0]=3&tableFilters[sector][sector_ids][1]=4",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"calleds"
+					],
+					"query": [
+						{
+							"key": "tableFilters[status_aberto][value]",
+							"value": "abertos"
+						},
+						{
+							"key": "tableFilters[sector][sector_ids][0]",
+							"value": "3"
+						},
+						{
+							"key": "tableFilters[sector][sector_ids][1]",
+							"value": "4"
+						}
+					]
+				},
+				"description": "Pesquisa a descrição"
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar Token",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "8|FE762aDtZy74NLyakZRbL5FVWyvzKTkAGpD2iouA80dae4c4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/me",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Adicionar um chamado",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "8|FE762aDtZy74NLyakZRbL5FVWyvzKTkAGpD2iouA80dae4c4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"protocol\": \"CHAM-2025-0001\",\r\n  \"problem\": \"Problema no equipamento X\",\r\n  \"sector_id\": 3,\r\n  \"user_id\": 50,\r\n  \"called_type_id\": 1,\r\n  \"supplier_id\": 4,\r\n  \"patrimony_id\": 286741,\r\n  \"type_maintenance\": \"C\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/calleds",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"calleds"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar um Called",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "8|FE762aDtZy74NLyakZRbL5FVWyvzKTkAGpD2iouA80dae4c4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/calleds/3850",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"calleds",
+						"3850"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar um chamado",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "8|FE762aDtZy74NLyakZRbL5FVWyvzKTkAGpD2iouA80dae4c4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n  \"type_maintenance\": \"C\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/calleds/3836",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"calleds",
+						"3836"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar especifica de um chamado com os relacionamentos",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "8|FE762aDtZy74NLyakZRbL5FVWyvzKTkAGpD2iouA80dae4c4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/calleds/3836",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"calleds",
+						"3836"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar interações com mensagem e anexo.",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "8|FE762aDtZy74NLyakZRbL5FVWyvzKTkAGpD2iouA80dae4c4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "message",
+							"value": "Teste",
+							"type": "text"
+						},
+						{
+							"key": "attachment_path",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/calleds/3836/interactions",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"calleds",
+						"3836",
+						"interactions"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

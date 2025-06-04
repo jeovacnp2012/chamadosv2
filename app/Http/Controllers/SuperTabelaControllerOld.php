@@ -6,7 +6,7 @@ use App\Models\Sector;
 use Illuminate\Http\Request;
 use App\Models\Called;
 
-class SuperTabelaController extends Controller
+class SuperTabelaControllerOld extends Controller
 {
     public function show(Request $request)
     {

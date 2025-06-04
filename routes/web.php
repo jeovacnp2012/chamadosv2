@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CalledController;
 use App\Http\Controllers\Api\InteractionController;
 use App\Http\Controllers\DataTableController;
-use App\Http\Controllers\SuperTabelaController;
+use App\Http\Controllers\SuperTabelaControllerOld;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
@@ -36,19 +36,20 @@ Route::get('/exportar-chamados', function (\Illuminate\Http\Request $request) {
 })->name('exportar-chamados');
 
 // Rotas para SuperTabela
-Route::get('/relatorios/supertabela', [SuperTabelaController::class, 'show'])
+Route::get('/relatorios/supertabela', [SuperTabelaControllerOld::class, 'show'])
     ->name('relatorios.supertabela')
     ->middleware(['auth']);
 
-Route::get('/chamados-abertos', [SuperTabelaController::class, 'chamadosAbertos'])
+Route::get('/chamados-abertos', [SuperTabelaControllerOld::class, 'chamadosAbertos'])
     ->name('relatorios.chamados-abertos')
     ->middleware(['web', 'auth']);
 
-Route::get('/chamados-fechados', [SuperTabelaController::class, 'chamadosFechados'])
+Route::get('/chamados-fechados', [SuperTabelaControllerOld::class, 'chamadosFechados'])
     ->name('relatorios.chamados-fechados')
     ->middleware(['web', 'auth']);
 
 Route::get('/relatorios/datatables', [DataTableController::class, 'index'])
     ->name('relatorios.datatables')
     ->middleware(['web', 'auth']);
+
 

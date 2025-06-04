@@ -10,16 +10,15 @@ class CalledController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
+        $query = Called::accessibleBy($request->user())
+            ->with(['user', 'sector', 'interactions']);
 
-        // Somente se tiver papel autorizado
-        if (! $user->hasAnyRole(['Executor', 'Solicitante'])) {
-            return response()->json(['error' => 'Não autorizado.'], 403);
+        // 🔍 Busca por protocolo (parcial)
+        if ($request->filled('protocolo')) {
+            $query->where('protocolo', 'like', '%' . $request->protocolo . '%');
         }
 
-        $query = Called::query()->with(['sector', 'user', 'interactions']);
-
-        // Filtros opcionais
+        // 🔍 Status
         if ($request->filled('status')) {
             if ($request->status === 'A') {
                 $query->whereNull('closing_date');
@@ -28,18 +27,204 @@ class CalledController extends Controller
             }
         }
 
-        if ($request->filled('sector_id')) {
-            $query->where('sector_id', $request->sector_id);
-        }
-
+        // 🔍 Filtro por datas de criação
         if ($request->filled('created_from')) {
             $query->whereDate('created_at', '>=', $request->created_from);
         }
-
         if ($request->filled('created_until')) {
             $query->whereDate('created_at', '<=', $request->created_until);
         }
 
-        return response()->json($query->get());
+        $calleds = Called::accessibleBy($request->user())
+            ->with(['user', 'sector', 'interactions'])
+            ->paginate($request->input('per_page', 15));
+
+        return response()->json($calleds);
+    }
+    public function show(Request $request, Called $called)
+    {
+        // 🔐 Verifica se o usuário tem acesso ao setor do chamado
+        if (
+            !$request->user()->hasRole('Super Admin') &&
+            !$request->user()->sectors->pluck('id')->contains($called->sector_id)
+        ) {
+            return response()->json([
+                'error' => 'Você não tem permissão para visualizar este chamado.'
+            ], 403);
+        }
+
+        // 🔄 Carrega relacionamentos
+        $called->load([
+            'user',
+            'sector',
+            'supplier',
+            'patrimony',
+            'calledType',
+            'interactions.user' // inclui quem enviou a interação
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $called,
+        ]);
+    }
+    public function store(Request $request)
+    {
+        $validated = $request->validate(
+            [
+                'protocol'         => 'required|string|max:8|unique:calleds,protocol',
+                'problem'          => 'required|string',
+                'sector_id'        => 'required|exists:sectors,id',
+                'user_id'          => 'required|exists:users,id',
+                'called_type_id'   => 'required|exists:called_types,id',
+                'supplier_id'      => 'required|exists:suppliers,id',
+                'patrimony_id'     => 'required|exists:patrimonies,id',
+                'type_maintenance' => 'required|string|size:1|in:C,P',
+            ],
+            [
+                'protocol.required' => 'O campo protocolo é obrigatório.',
+                'protocol.unique'   => 'Este protocolo já está em uso.',
+                'protocol.max'      => 'O protocolo deve ter no máximo 8 caracteres.',
+                'problem.required' => 'A descrição do problema é obrigatória.',
+                'sector_id.required' => 'O setor responsável é obrigatório.',
+                'sector_id.exists'   => 'O setor informado não existe.',
+                'user_id.required' => 'O usuário responsável é obrigatório.',
+                'user_id.exists'   => 'O usuário informado não existe.',
+                'called_type_id.required' => 'O tipo do chamado é obrigatório.',
+                'called_type_id.exists'   => 'O tipo do chamado informado não existe.',
+                'supplier_id.required' => 'O executor (fornecedor) é obrigatório.',
+                'supplier_id.exists'   => 'O fornecedor informado não existe.',
+                'patrimony_id.required' => 'O patrimônio vinculado é obrigatório.',
+                'patrimony_id.exists'   => 'O patrimônio informado não existe.',
+                'type_maintenance.required' => 'O tipo de manutenção é obrigatório.',
+                'type_maintenance.string'   => 'O tipo de manutenção deve ser uma letra.',
+                'type_maintenance.size'     => 'O tipo de manutenção deve conter apenas 1 caractere.',
+                'type_maintenance.in'       => 'O tipo de manutenção deve ser "C" (Corretiva) ou "P" (Preventiva).',
+            ]
+        );
+
+        $called = \App\Models\Called::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Chamado criado com sucesso.',
+            'data' => $called->load(['user', 'sector', 'supplier', 'calledType', 'patrimony']),
+        ], 201);
+    }
+    public function update(Request $request, \App\Models\Called $called)
+    {
+        if (
+            !$request->user()->hasRoleApi('Super Admin') &&
+            !$request->user()->sectors->pluck('id')->contains($called->sector_id)
+        ) {
+            return response()->json([
+                'error' => 'Você não tem permissão para modificar este chamado.'
+            ], 403);
+        }
+        $validated = $request->validate(
+            [
+                'protocol'         => 'sometimes|required|string|max:255|unique:calleds,protocol,' . $called->id,
+                'problem'          => 'sometimes|required|string',
+                'sector_id'        => 'sometimes|required|exists:sectors,id',
+                'user_id'          => 'sometimes|required|exists:users,id',
+                'called_type_id'   => 'sometimes|required|exists:called_types,id',
+                'supplier_id'      => 'sometimes|required|exists:suppliers,id',
+                'patrimony_id'     => 'sometimes|required|exists:patrimonies,id',
+                'type_maintenance' => 'sometimes|required|string|size:1|in:C,P',
+            ],
+            [
+                'protocol.required' => 'O campo protocolo é obrigatório.',
+                'protocol.unique'   => 'Este protocolo já está em uso por outro chamado.',
+                'protocol.max'      => 'O protocolo deve ter no máximo 255 caracteres.',
+
+                'problem.required' => 'A descrição do problema é obrigatória.',
+
+                'sector_id.required' => 'O setor responsável é obrigatório.',
+                'sector_id.exists'   => 'O setor informado não existe.',
+
+                'user_id.required' => 'O usuário responsável é obrigatório.',
+                'user_id.exists'   => 'O usuário informado não existe.',
+
+                'called_type_id.required' => 'O tipo do chamado é obrigatório.',
+                'called_type_id.exists'   => 'O tipo do chamado informado não existe.',
+
+                'supplier_id.required' => 'O executor (fornecedor) é obrigatório.',
+                'supplier_id.exists'   => 'O fornecedor informado não existe.',
+
+                'patrimony_id.required' => 'O patrimônio vinculado é obrigatório.',
+                'patrimony_id.exists'   => 'O patrimônio informado não existe.',
+
+                'type_maintenance.required' => 'O tipo de manutenção é obrigatório.',
+                'type_maintenance.string'   => 'O tipo de manutenção deve ser uma letra.',
+                'type_maintenance.size'     => 'O tipo de manutenção deve conter apenas 1 caractere.',
+                'type_maintenance.in'       => 'O tipo de manutenção deve ser "C" (Corretiva) ou "P" (Preventiva).',
+            ]
+        );
+
+        $called->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Chamado atualizado com sucesso.',
+            'data'    => $called->load(['user', 'sector', 'supplier', 'patrimony']),
+        ]);
+    }
+    public function destroy(Request $request, Called $called)
+    {
+        if (
+            !$request->user()->hasRoleApi('Super Admin') &&
+            !$request->user()->sectors->pluck('id')->contains($called->sector_id)
+        ) {
+            return response()->json([
+                'error' => 'Você não tem permissão para modificar este chamado.'
+            ], 403);
+        }
+        // Proteção: só exclui se não tiver interações
+        if ($called->interactions()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este chamado possui interações vinculadas e não pode ser excluído.',
+            ], 403);
+        }
+        $called->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Chamado excluído com sucesso.',
+        ]);
+    }
+    public function storeInteraction(Request $request, Called $called)
+    {
+        if (
+            !$request->user()->hasRoleApi('Super Admin') &&
+            !$request->user()->sectors->pluck('id')->contains($called->sector_id)
+        ) {
+            return response()->json(['error' => 'Você não tem permissão para interagir com este chamado.'], 403);
+        }
+
+        $validated = $request->validate([
+            'message' => 'required|string|max:1000',
+            'attachment_path' => 'nullable|file|max:10240',
+        ], [
+            'message.required' => 'A mensagem é obrigatória.',
+            'attachment_path.file' => 'O anexo deve ser um arquivo válido.',
+            'attachment_path.max' => 'O anexo não pode ser maior que 10MB.',
+        ]);
+
+        $interaction = new \App\Models\Interaction([
+            'user_id' => $request->user()->id,
+            'message' => $validated['message'],
+        ]);
+
+        if ($request->hasFile('attachment_path')) {
+            $path = $request->file('attachment_path')->store('attachments', 'public');
+            $interaction->attachment_path = $path;
+        }
+
+        $called->interactions()->save($interaction);
+
+        return response()->json([
+            'success' => true,
+            'interaction' => $interaction->load('user')
+        ], 201);
     }
 }

@@ -48,4 +48,13 @@ class Called extends Model
     {
         return $this->hasMany(Interaction::class);
     }
+    public function scopeAccessibleBy($query, \App\Models\User $user)
+    {
+        // Super Admin vê todos
+        if ($user->hasRole('Super Admin')) {
+            return $query;
+        }
+
+        return $query->whereIn('sector_id', $user->sectors()->pluck('id'));
+    }
 }

@@ -31,10 +31,6 @@ class User extends Authenticatable implements BelongsToCompanyInterface
         'company_id',
     ];
 
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
-    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -62,6 +58,10 @@ class User extends Authenticatable implements BelongsToCompanyInterface
     {
         return $this->belongsToMany(Sector::class);
     }
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
     public function departaments(): BelongsToMany
     {
         return $this->belongsToMany(Departament::class);
@@ -69,6 +69,10 @@ class User extends Authenticatable implements BelongsToCompanyInterface
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function hasRoleApi($role)
+    {
+        return $this->roles()->where('name', $role)->exists();
     }
 
 }
