@@ -1,0 +1,17 @@
+{
+    "name": "chamadosv2_app",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node node_modules/react-native/local-cli/cli.js start"
+    },
+    "dependencies": {
+        "@babel/plugin-transform-class-properties": "^7.27.1",
+        "@babel/plugin-transform-optional-chaining": "^7.27.1",
+        "@xmldom/xmldom": "^0.9.8",
+        "glob": "^11.0.2",
+        "react-native": "0.79.3",
+        "rimraf": "^6.0.1",
+        "uuid": "^11.1.0"
+    }
+}
