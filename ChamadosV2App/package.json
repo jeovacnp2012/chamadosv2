@@ -2,14 +2,14 @@
   "name": "chamadosv2app",
   "main": "expo-router/entry",
   "version": "1.0.0",
-    "scripts": {
-        "start": "expo start",
-        "android": "expo start --android",
-        "ios": "expo start --ios",
-        "web": "expo start --web",
-        "reset-project": "node ./scripts/reset-project.js",
-        "lint": "expo lint"
-    },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "reset-project": "node ./scripts/reset-project.js",
+    "lint": "expo lint"
+  },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "@react-navigation/bottom-tabs": "^7.3.10",
@@ -36,7 +36,8 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-web": "~0.20.0",
-    "react-native-webview": "13.13.5"
+    "react-native-webview": "13.13.5",
+    "@react-native-async-storage/async-storage": "2.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -47,5 +48,4 @@
     "typescript": "~5.8.3"
   },
   "private": true
-
 }
