@@ -4,21 +4,57 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Called;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class CalledController extends Controller
 {
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Credenciais inválidas',
+            ], 401);
+        }
+
+        // Revoga tokens anteriores se quiser
+        $user->tokens()->delete();
+
+        // Cria novo token
+        $token = $user->createToken('app-token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->getRoleNames(), // Spatie: retorna array de roles
+            ],
+        ]);
+    }
     public function index(Request $request)
     {
         $query = Called::accessibleBy($request->user())
             ->with(['user', 'sector', 'interactions']);
 
-        // 🔍 Busca por protocolo (parcial)
+        if (! $request->user()->hasRole('Super Admin')) {
+            $sectorIds = $request->user()->sectors()->pluck('sectors.id');
+            $query->whereIn('sector_id', $sectorIds);
+        }
+
         if ($request->filled('protocolo')) {
             $query->where('protocolo', 'like', '%' . $request->protocolo . '%');
         }
 
-        // 🔍 Status
         if ($request->filled('status')) {
             if ($request->status === 'A') {
                 $query->whereNull('closing_date');
@@ -27,19 +63,17 @@ class CalledController extends Controller
             }
         }
 
-        // 🔍 Filtro por datas de criação
         if ($request->filled('created_from')) {
             $query->whereDate('created_at', '>=', $request->created_from);
         }
+
         if ($request->filled('created_until')) {
             $query->whereDate('created_at', '<=', $request->created_until);
         }
 
-        $calleds = Called::accessibleBy($request->user())
-            ->with(['user', 'sector', 'interactions'])
-            ->paginate($request->input('per_page', 15));
-
-        return response()->json($calleds);
+        return response()->json(
+            $query->paginate($request->input('per_page', 15))
+        );
     }
     public function show(Request $request, Called $called)
     {

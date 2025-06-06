@@ -12,17 +12,7 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
         'token' => $request->bearerToken(),
     ]);
 });
-Route::post('/login', function (Request $request) {
-    $user = User::where('email', $request->email)->first();
-
-    if (! $user || ! Hash::check($request->password, $user->password)) {
-        return response()->json(['error' => 'Credenciais inválidas'], 401);
-    }
-
-    return response()->json([
-        'token' => $user->createToken('app-token')->plainTextToken,
-    ]);
-});
+Route::post('/login', [\App\Http\Controllers\Api\CalledController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
