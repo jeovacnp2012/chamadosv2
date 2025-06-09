@@ -9,25 +9,38 @@ use Illuminate\Http\Request;
 
 class InteractionController extends Controller
 {
+    public function index(Called $called)
+    {
+        return response()->json([
+            'data' => $called->interactions()->with('user:id,name')->latest()->get()
+        ]);
+    }
+
     public function store(Request $request, Called $called)
     {
-        $user = $request->user();
+        $request->validate([
+            'message' => 'nullable|string|max:1000',
+            'file' => 'nullable|file|max:10240',
+        ]);
 
-        if (! $user->hasAnyRole(['Executor', 'Solicitante'])) {
-            return response()->json(['error' => 'Não autorizado.'], 403);
+        $user = $request->user();
+        $path = null;
+
+        // Diagnóstico para testar o envio
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $path = $file->store('interactions', 'public');
         }
 
-        $validated = $request->validate([
-            'message' => 'required|string|max:1000',
-        ]);
-
-        $interaction = new Interaction([
+        $interaction = $called->interactions()->create([
             'user_id' => $user->id,
-            'message' => $validated['message'],
+            'message' => $request->input('message', ''),
+            'file_path' => $path,
         ]);
 
-        $called->interactions()->save($interaction);
-
-        return response()->json(['success' => true, 'interaction' => $interaction], 201);
+        return response()->json([
+            'success' => true,
+            'data' => $interaction,
+        ]);
     }
 }

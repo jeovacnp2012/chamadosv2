@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -13,6 +13,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import useAuthGuard from '../../hooks/useAuthGuard';
 
+interface Chamado {
+    id: number;
+    protocol: string;
+    problem: string;
+    status: string;
+    created_at: string;
+    closing_date?: string | null;
+    user?: { id: number; name: string };
+    sector?: { id: number; name: string };
+    supplier?: { id: number; trade_name: string };
+    patrimony?: { id: number; tag: string };
+}
+
 export default function Chamados() {
     useAuthGuard();
 
@@ -21,8 +34,25 @@ export default function Chamados() {
     const [lastPage, setLastPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [chamados, setChamados] = useState<any[]>([]);
+    const [chamados, setChamados] = useState<Chamado[]>([]);
     const [menuAberto, setMenuAberto] = useState<number | null>(null);
+    const [role, setRole] = useState<string | null>(null);
+
+    useEffect(() => {
+        const obterPerfil = async () => {
+            const token = await AsyncStorage.getItem('auth_token');
+            const response = await fetch('http://127.0.0.1:8000/api/v1/me', {
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await response.json();
+            setRole(data.user?.role || null);
+        };
+        obterPerfil();
+    }, []);
+
 
     const toggleMenu = (id: number) => {
         setMenuAberto(menuAberto === id ? null : id);
@@ -46,7 +76,6 @@ export default function Chamados() {
             );
 
             const json = await response.json();
-
             setChamados(json.data || []);
             setLastPage(json.last_page || 1);
             setTotal(json.total || json.data.length || 0);
@@ -96,52 +125,63 @@ export default function Chamados() {
                                     >
                                         <Text style={styles.actionButtonText}>⋮ Ações</Text>
                                     </TouchableOpacity>
+
                                     {menuAberto === item.id && (
                                         <View style={styles.dropdown}>
-                                            <Text style={styles.dropdownItem}>👁️ Visualizar</Text>
-                                            <Text style={styles.dropdownItem}>✏️ Editar</Text>
-                                            <Text style={[styles.dropdownItem, { color: 'red' }]}>
-                                                🗑️ Excluir
-                                            </Text>
-                                            <Text
-                                                style={[styles.dropdownItem, { color: '#007bff' }]}
-                                            >
-                                                💬 Chat
-                                            </Text>
+                                            {role === 'Executor' ? (
+                                                <>
+                                                    <TouchableOpacity onPress={() => router.push(`/chamados/chat/${item.id}`)}>
+                                                        <Text style={[styles.dropdownItem, { color: '#007bff' }]}>💬 Chat</Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity onPress={() => router.push(`/chamados/baixa/${item.id}`)}>
+                                                        <Text style={[styles.dropdownItem, { color: '#28a745' }]}>✅ Dar baixa</Text>
+                                                    </TouchableOpacity>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <TouchableOpacity onPress={() => router.push(`/chamados/view/${item.id}`)}>
+                                                        <Text style={styles.dropdownItem}>👁️ Visualizar</Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity onPress={() => router.push(`/chamados/edit/${item.id}`)}>
+                                                        <Text style={styles.dropdownItem}>✏️ Editar</Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                                                        <Text style={[styles.dropdownItem, { color: 'red' }]}>🗑️ Excluir</Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity onPress={() => router.push(`/chamados/chat/${item.id}`)}>
+                                                        <Text style={[styles.dropdownItem, { color: '#007bff' }]}>💬 Chat</Text>
+                                                    </TouchableOpacity>
+                                                </>
+                                            )}
                                         </View>
                                     )}
+
                                 </View>
-                                <Text style={styles.protocolo}>{item.protocolo}</Text>
-                                <Text style={styles.problem}>{item.problem}</Text>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Protocolo:</Text>
+                                    <Text style={styles.protocol}>{item.protocol}</Text>
+                                </View>
                                 <View style={styles.infoRow}>
                                     <Text style={styles.label}>Setor:</Text>
                                     <Text style={styles.value}>{item.sector?.name}</Text>
-                                </View>
-                                <View style={styles.infoRow}>
-                                    <Text style={styles.label}>Status:</Text>
-                                    <Text
-                                        style={[
-                                            styles.value,
-                                            item.closing_date ? styles.fechado : styles.aberto,
-                                        ]}
-                                    >
-                                        {item.closing_date ? 'Fechado' : 'Aberto'}
-                                    </Text>
                                 </View>
                                 <View style={styles.infoRow}>
                                     <Text style={styles.label}>Responsável:</Text>
                                     <Text style={styles.value}>{item.user?.name}</Text>
                                 </View>
                                 <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Plaqueta:</Text>
+                                    <Text style={styles.protocol}>{item.patrimony?.tag || 'Sem patrimônio'}</Text>
+                                </View>
+                                <View style={styles.infoRow}>
                                     <Text style={styles.label}>Data:</Text>
-                                    <Text style={styles.value}>
-                                        {formatarData(item.created_at)}
-                                    </Text>
+                                    <Text style={styles.value}>{formatarData(item.created_at)}</Text>
+                                </View>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Problema:</Text>
+                                    <Text style={styles.problem}>{item.problem}</Text>
                                 </View>
                             </View>
-                        )}
-                        ListEmptyComponent={() => (
-                            <Text style={{ textAlign: 'center' }}>Nenhum chamado encontrado.</Text>
                         )}
                     />
                     <View style={styles.pagination}>
@@ -190,13 +230,11 @@ const styles = StyleSheet.create({
         elevation: 2,
         position: 'relative',
     },
-    protocolo: { fontWeight: 'bold', fontSize: 16, marginBottom: 4, color: '#222' },
+    protocol: { fontWeight: 'bold', fontSize: 16, marginBottom: 4, color: '#222' },
     problem: { fontSize: 14, color: '#444', marginBottom: 8 },
     infoRow: { flexDirection: 'row', marginTop: 2 },
     label: { fontWeight: '600', marginRight: 4 },
     value: { color: '#555' },
-    aberto: { color: '#2e7d32', fontWeight: 'bold' },
-    fechado: { color: '#c62828', fontWeight: 'bold' },
     totalText: { textAlign: 'center', fontSize: 14, marginVertical: 12, color: '#444' },
     actionContainer: {
         position: 'absolute',

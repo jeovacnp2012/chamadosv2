@@ -18,6 +18,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
@@ -40,15 +41,14 @@ class UserResource extends Resource
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $query = parent::getEloquentQuery();
-
         // Se o usuário logado NÃO for super admin, filtra os super admins
         if (! auth()->user()->hasRole('Super Admin')) {
             $query->whereDoesntHave('roles', fn($q) =>
             $q->where('name', 'Super Admin')
             );
         }
-
         return $query;
+
     }
 
     public static function form(Form $form): Form
@@ -59,15 +59,6 @@ class UserResource extends Resource
                 ->schema([
                     Grid::make(['sm' => 1, 'md' => 2])
                         ->schema([
-//                            Select::make('company_id')
-//                                ->label('Empresa')
-//                                ->relationship('company', 'trade_name')
-//                                ->searchable()
-//                                ->preload()
-//                                ->visible(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
-//                                ->required(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
-//                                ->dehydrated(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
-//                                ->default(fn ($record) => $record?->company_id),
                             Select::make('company_id')
                                 ->label('Empresa')
                                 ->relationship('company', 'trade_name')
@@ -76,7 +67,13 @@ class UserResource extends Resource
                                 ->visible(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
                                 ->required(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
                                 ->dehydrated(fn ($record) => auth()->user()?->hasRole('Super Admin') && auth()->id() !== $record?->id)
-                                ->default(fn ($record) => $record?->company_id ?? auth()->user()?->company_id)
+                                ->default(fn ($record) => $record?->company_id ?? auth()->user()?->company_id),
+                            Select::make('supplier_id')
+                                ->label('Executor vinculado')
+                                ->relationship('supplier', 'trade_name')
+                                ->searchable()
+                                ->preload()
+                                ->visible(fn () => !auth()->user()?->hasRole('Executor'))
                         ]),
                 ]),
             Section::make('Dados do Usuário')
@@ -105,7 +102,6 @@ class UserResource extends Resource
                             ->dehydrated(fn($state) => filled($state)),
                     ]),
                 ]),
-
             Section::make('Acesso e Segurança')
                 ->schema([
                     Grid::make(['sm' => 1, 'md' => 2])->schema([
@@ -193,42 +189,6 @@ class UserResource extends Resource
                                 ->columnSpanFull()
                         ])->visible(fn () => !auth()->user()?->hasRole('Super Admin')),
                 ]),
-//                ->rules([
-//                    'departaments' => 'nullable|array',
-//                    'departaments.*' => 'exists:departaments,id',
-//                    'sectors' => 'nullable|array',
-//                    'sectors.*' => [
-//                        'exists:sectors,id',
-//                        function ($attribute, $value, $fail) {
-//                            // Se for Super Admin ou Gerente, não precisa validar
-//                            if (auth()->user()->hasAnyRole(['Super Admin', 'Gerente'])) {
-//                                return;
-//                            }
-//                            $departamentIds = auth()->user()->departaments->pluck('id');
-//                            $sectorDepartament = Sector::find($value)->departament_id;
-//
-//                            if (!in_array($sectorDepartament, $departamentIds)) {
-//                                $fail('O setor selecionado não pertence aos seus departamentos.');
-//                            }
-//                        }
-//                    ]
-//                ]),
-//            Section::make('Setores permitidos')
-//                ->schema([
-//                    Select::make('sectors')
-//                        ->label('Setores permitidos')
-//                        ->relationship('sectors', 'name') // baseado no relacionamento belongsToMany
-//                        ->multiple()
-//                        ->searchable()
-//                        ->preload()
-//                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
-//                        ->options(function () {
-//                            return \App\Models\Sector::orderBy('name')->pluck('name', 'id');
-//                        })
-//                        ->visible(fn () => auth()->user()?->hasRole('Super Admin'))
-//                        ->columnSpanFull()
-//                        ->extraAttributes(['class' => 'text-sm'])
-//                ]),
         ]);
 
     }

@@ -43,37 +43,44 @@ class CalledController extends Controller
     }
     public function index(Request $request)
     {
-        $query = Called::accessibleBy($request->user())
-            ->with(['user', 'sector', 'interactions']);
+        $user = $request->user();
 
-        if (! $request->user()->hasRole('Super Admin')) {
-            $sectorIds = $request->user()->sectors()->pluck('sectors.id');
-            $query->whereIn('sector_id', $sectorIds);
+        $query = Called::query();
+
+        // SUPER ADMIN vê tudo
+        if ($user->hasRole('Super Admin')) {
+            // sem filtros
+        }
+        // EXECUTOR vê apenas os chamados que ele executa
+        elseif ($user->hasRole('Executor') && $user->supplier_id) {
+            $query->where('supplier_id', $user->supplier_id);
+        }
+        // Demais perfis → setores dos seus departamentos
+        else {
+            $query->where('company_id', $user->company_id)
+                ->whereIn('sector_id', collect($user->departaments)->flatMap->sectors->pluck('id'));
         }
 
-        if ($request->filled('protocolo')) {
-            $query->where('protocolo', 'like', '%' . $request->protocolo . '%');
-        }
-
+        // Filtros opcionais via query string
         if ($request->filled('status')) {
-            if ($request->status === 'A') {
-                $query->whereNull('closing_date');
-            } elseif ($request->status === 'F') {
-                $query->whereNotNull('closing_date');
-            }
+            $query->where('status', $request->status);
         }
 
-        if ($request->filled('created_from')) {
-            $query->whereDate('created_at', '>=', $request->created_from);
+        if ($request->filled('search')) {
+            $query->where('protocol', 'like', '%' . $request->search . '%');
         }
 
-        if ($request->filled('created_until')) {
-            $query->whereDate('created_at', '<=', $request->created_until);
+        if ($request->filled('from') && $request->filled('to')) {
+            $query->whereBetween('created_at', [$request->from, $request->to]);
         }
 
-        return response()->json(
-            $query->paginate($request->input('per_page', 15))
-        );
+        return $query->with([
+            'user:id,name',
+            'sector:id,name',
+            'supplier:id,trade_name',
+            'patrimony:id,tag',
+            'interactions',
+        ])->latest()->paginate(10);
     }
     public function show(Request $request, Called $called)
     {

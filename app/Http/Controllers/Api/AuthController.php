@@ -9,6 +9,20 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    public function me(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->getRoleNames()->first(),
+            ],
+            'token' => $request->bearerToken(),
+        ]);
+    }
     public function login(Request $request)
     {
         $user = User::where('email', $request->email)->first();

@@ -13,6 +13,7 @@ class Interaction extends Model
         'message',
         'attachment_path',
     ];
+    protected $appends = ['attachment_url'];
     public function called(): BelongsTo
     {
         return $this->belongsTo(Called::class);
@@ -22,8 +23,8 @@ class Interaction extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function getAttachmentUrlAttribute(): ?string
+    public function getAttachmentUrlAttribute()
     {
-        return $this->attachment_path ? asset('storage/' . $this->attachment_path) : null;
+        return $this->file_path ? asset('storage/' . $this->file_path) : null;
     }
 }

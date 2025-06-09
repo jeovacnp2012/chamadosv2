@@ -406,11 +406,20 @@ class CalledResource extends Resource
                 'supplier' => fn($query) => $query->select('id', 'trade_name')
             ]);
 
-        if (auth()->user()?->hasRole('Super Admin')) {
+        $user = auth()->user();
+
+        // Super Admin vê tudo
+        if ($user->hasRole('Super Admin')) {
             return $query;
         }
 
-        return $query->whereIn('sector_id', collect(auth()->user()?->departaments)
+        // Executor vê apenas chamados em que é executor
+        if ($user->hasRole('Executor') && $user->supplier_id) {
+            return $query->where('supplier_id', $user->supplier_id);
+        }
+
+        // Demais perfis veem chamados dos setores dos seus departamentos
+        return $query->whereIn('sector_id', collect($user->departaments)
             ->flatMap->sectors
             ->pluck('id'));
     }

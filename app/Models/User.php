@@ -29,6 +29,7 @@ class User extends Authenticatable implements BelongsToCompanyInterface
         'email',
         'password',
         'company_id',
+        'supplier_id',
     ];
 
 
@@ -73,6 +74,10 @@ class User extends Authenticatable implements BelongsToCompanyInterface
     public function hasRoleApi($role)
     {
         return $this->roles()->where('name', $role)->exists();
+    }
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
 }
