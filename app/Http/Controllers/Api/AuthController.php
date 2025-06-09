@@ -19,6 +19,20 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $user->createToken('app-token')->plainTextToken,
+            'user' => $user->load('roles'), // se estiver usando Spatie ou quiser roles no retorno
         ]);
     }
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'string', 'min:6'],
+        ]);
+
+        $user = $request->user();
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        return response()->json(['message' => 'Senha atualizada com sucesso']);
+    }
+
 }

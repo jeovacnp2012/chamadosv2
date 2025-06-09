@@ -1,12 +1,13 @@
+
 import React, { useState } from 'react';
 import {
     View,
     Text,
     TextInput,
-    Button,
     StyleSheet,
     Alert,
     ActivityIndicator,
+    TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
@@ -17,6 +18,7 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
 
     const login = async () => {
+        console.log('🔐 Iniciando login...');
         if (!email || !password) {
             Alert.alert('Erro', 'Preencha email e senha');
             return;
@@ -31,18 +33,25 @@ export default function Login() {
                 body: JSON.stringify({ email, password }),
             });
 
+            console.log('Resposta da API:', response.status);
+
             if (!response.ok) {
                 throw new Error('Credenciais inválidas');
             }
 
             const data = await response.json();
 
+            console.log('🔑 Token recebido:', data.token);
+            console.log('👤 Usuário:', data.user);
+
             await AsyncStorage.setItem('auth_token', data.token);
             await AsyncStorage.setItem('user_name', data.user.name);
             await AsyncStorage.setItem('user_role', data.user.roles[0] || 'Sem Perfil');
 
+            console.log('✅ Login efetuado, redirecionando...');
             router.replace('/tabs/home');
         } catch (error: any) {
+            console.error('Erro ao logar:', error);
             Alert.alert('Erro', error.message || 'Falha ao logar');
         } finally {
             setLoading(false);
@@ -73,7 +82,9 @@ export default function Login() {
             {loading ? (
                 <ActivityIndicator size="large" />
             ) : (
-                <Button title="Entrar" onPress={login} />
+                <TouchableOpacity onPress={login} style={styles.button}>
+                    <Text style={styles.buttonText}>Entrar</Text>
+                </TouchableOpacity>
             )}
         </View>
     );
@@ -99,5 +110,18 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 16,
         paddingHorizontal: 12,
+    },
+    button: {
+        backgroundColor: '#007bff',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        marginTop: 8,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontSize: 16,
     },
 });

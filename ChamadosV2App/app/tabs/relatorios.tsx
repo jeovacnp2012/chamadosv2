@@ -1,7 +1,9 @@
 
 import { View, Text, StyleSheet } from 'react-native';
+import useAuthGuard from '../../hooks/useAuthGuard';
 
 export default function Relatorios() {
+    useAuthGuard();
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Página de Relatórios</Text>

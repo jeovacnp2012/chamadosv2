@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -9,8 +10,12 @@ import {
     SafeAreaView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+import useAuthGuard from '../../hooks/useAuthGuard';
 
 export default function Chamados() {
+    useAuthGuard();
+
     const [status, setStatus] = useState<'A' | 'F' | null>(null);
     const [page, setPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
@@ -28,9 +33,10 @@ export default function Chamados() {
         setLoading(true);
         setPage(pageParam);
         const token = await AsyncStorage.getItem('auth_token');
+
         try {
             const response = await fetch(
-                `http://127.0.0.1:8000/api/v1/calleds?status=${tipo}&page=${pageParam}`,
+                `http://127.0.0.1:8000/api/v1/calleds?status=${tipo}&page=${pageParam}&per_page=5`,
                 {
                     headers: {
                         Accept: 'application/json',
@@ -38,7 +44,9 @@ export default function Chamados() {
                     },
                 }
             );
+
             const json = await response.json();
+
             setChamados(json.data || []);
             setLastPage(json.last_page || 1);
             setTotal(json.total || json.data.length || 0);
@@ -59,13 +67,13 @@ export default function Chamados() {
             <Text style={styles.subtitle}>Meus Chamados</Text>
             <View style={styles.filters}>
                 <TouchableOpacity
-                    onPress={() => buscarChamados('A')}
+                    onPress={() => buscarChamados('A', 1)}
                     style={[styles.button, status === 'A' && styles.buttonSelected]}
                 >
                     <Text style={styles.buttonText}>Abertos</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    onPress={() => buscarChamados('F')}
+                    onPress={() => buscarChamados('F', 1)}
                     style={[styles.button, status === 'F' && styles.buttonSelected]}
                 >
                     <Text style={styles.buttonText}>Fechados</Text>
@@ -92,8 +100,14 @@ export default function Chamados() {
                                         <View style={styles.dropdown}>
                                             <Text style={styles.dropdownItem}>👁️ Visualizar</Text>
                                             <Text style={styles.dropdownItem}>✏️ Editar</Text>
-                                            <Text style={[styles.dropdownItem, { color: 'red' }]}>🗑️ Excluir</Text>
-                                            <Text style={[styles.dropdownItem, { color: '#007bff' }]}>💬 Chat</Text>
+                                            <Text style={[styles.dropdownItem, { color: 'red' }]}>
+                                                🗑️ Excluir
+                                            </Text>
+                                            <Text
+                                                style={[styles.dropdownItem, { color: '#007bff' }]}
+                                            >
+                                                💬 Chat
+                                            </Text>
                                         </View>
                                     )}
                                 </View>
@@ -105,7 +119,12 @@ export default function Chamados() {
                                 </View>
                                 <View style={styles.infoRow}>
                                     <Text style={styles.label}>Status:</Text>
-                                    <Text style={[styles.value, item.closing_date ? styles.fechado : styles.aberto]}>
+                                    <Text
+                                        style={[
+                                            styles.value,
+                                            item.closing_date ? styles.fechado : styles.aberto,
+                                        ]}
+                                    >
                                         {item.closing_date ? 'Fechado' : 'Aberto'}
                                     </Text>
                                 </View>
@@ -115,12 +134,36 @@ export default function Chamados() {
                                 </View>
                                 <View style={styles.infoRow}>
                                     <Text style={styles.label}>Data:</Text>
-                                    <Text style={styles.value}>{formatarData(item.created_at)}</Text>
+                                    <Text style={styles.value}>
+                                        {formatarData(item.created_at)}
+                                    </Text>
                                 </View>
                             </View>
                         )}
+                        ListEmptyComponent={() => (
+                            <Text style={{ textAlign: 'center' }}>Nenhum chamado encontrado.</Text>
+                        )}
                     />
-                    {status && chamados.length > 0 && <Text style={styles.totalText}>{total} Registros</Text>}
+                    <View style={styles.pagination}>
+                        <TouchableOpacity
+                            onPress={() => page > 1 && buscarChamados(status!, page - 1)}
+                            style={[styles.pageButton, page === 1 && { opacity: 0.5 }]}
+                            disabled={page === 1}
+                        >
+                            <Text style={styles.pageButtonText}>◀ Anterior</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.pageText}>
+                            Página {page} de {lastPage}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => page < lastPage && buscarChamados(status!, page + 1)}
+                            style={[styles.pageButton, page === lastPage && { opacity: 0.5 }]}
+                            disabled={page === lastPage}
+                        >
+                            <Text style={styles.pageButtonText}>Próxima ▶</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.totalText}>{total} Registros</Text>
                 </>
             )}
         </SafeAreaView>
@@ -185,4 +228,24 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
     },
     dropdownItem: { paddingVertical: 6, fontSize: 14 },
-})
+    pagination: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 12,
+        paddingHorizontal: 20,
+    },
+    pageButton: {
+        backgroundColor: '#007bff',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+    },
+    pageButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    pageText: {
+        fontWeight: '600',
+    },
+});

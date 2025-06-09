@@ -12,7 +12,7 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
         'token' => $request->bearerToken(),
     ]);
 });
-Route::post('/login', [\App\Http\Controllers\Api\CalledController::class, 'login']);
+Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -35,5 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //IMPLEMENTAR O UPLOAD DE ARQUIVOS
     Route::post('/calleds/{called}/interactions', [\App\Http\Controllers\Api\CalledController::class, 'storeInteraction']);
+    Route::put('/profile/password', [\App\Http\Controllers\Api\AuthController::class, 'updatePassword']);
+
 });
 

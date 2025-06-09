@@ -1,5 +1,10 @@
 import { Slot } from 'expo-router';
-
-export default function AppLayout() {
-    return <Slot />;
+import Toast from 'react-native-toast-message';
+export default function Layout() {
+    return (
+        <>
+            <Slot />
+            <Toast />
+        </>
+    );
 }

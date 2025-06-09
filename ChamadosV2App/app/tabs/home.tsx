@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,16 +22,25 @@ export default function Home() {
         router.replace('/auth/login');
     };
 
+    const handleLogin = () => {
+        router.replace('/auth/login');
+    };
+
+    const isLoggedIn = name && role;
+
     return (
         <View style={styles.container}>
             <Text style={styles.subtitle}>
-                {name && role ? `Olá, ${name} (${role})` : 'Visitante'}
+                {isLoggedIn ? `Olá, ${name} (${role})` : 'Visitante'}
             </Text>
-            {name && (
-                <View style={{ marginTop: 20 }}>
-                    <Button title="Logout" onPress={handleLogout} color="#007bff" />
-                </View>
-            )}
+
+            <View style={{ marginTop: 20 }}>
+                {isLoggedIn ? (
+                    <Button title="Logout" onPress={handleLogout} color="#c62828" />
+                ) : (
+                    <Button title="Entrar" onPress={handleLogin} color="#007bff" />
+                )}
+            </View>
         </View>
     );
 }
