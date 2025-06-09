@@ -64,7 +64,12 @@ export default function ChatChamado() {
     const enviarMensagem = async () => {
         const token = await AsyncStorage.getItem('auth_token');
         const formData = new FormData();
-        formData.append('message', mensagem);
+
+        // Somente adiciona a mensagem se tiver conteúdo
+        if (mensagem.trim() !== '') {
+            formData.append('message', mensagem);
+        }
+
         if (anexo) {
             formData.append('file', {
                 uri: anexo.uri,
@@ -73,19 +78,26 @@ export default function ChatChamado() {
             } as any);
         }
 
-        await fetch(`http://127.0.0.1:8000/api/v1/calleds/${id}/interactions`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data',
-            },
-            body: formData,
-        });
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/v1/calleds/${id}/interactions`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+                body: formData,
+            });
 
-        setMensagem('');
-        setAnexo(null);
-        buscarMensagens();
+            const result = await response.json();
+            console.log('Interação enviada:', result);
+
+            setMensagem('');
+            setAnexo(null);
+            buscarMensagens();
+        } catch (error) {
+            console.error('Erro ao enviar interação:', error);
+        }
     };
 
     const escolherArquivo = async () => {

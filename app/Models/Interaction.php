@@ -11,7 +11,7 @@ class Interaction extends Model
         'called_id',
         'user_id',
         'message',
-        'attachment_path',
+        'attachment_path', // ✅ precisa estar aqui
     ];
     protected $appends = ['attachment_url'];
     public function called(): BelongsTo

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Called;
+use App\Models\Interaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -233,39 +234,34 @@ class CalledController extends Controller
             'message' => 'Chamado excluído com sucesso.',
         ]);
     }
-    public function storeInteraction(Request $request, Called $called)
-    {
-        if (
-            !$request->user()->hasRoleApi('Super Admin') &&
-            !$request->user()->sectors->pluck('id')->contains($called->sector_id)
-        ) {
-            return response()->json(['error' => 'Você não tem permissão para interagir com este chamado.'], 403);
-        }
-
-        $validated = $request->validate([
-            'message' => 'required|string|max:1000',
-            'attachment_path' => 'nullable|file|max:10240',
-        ], [
-            'message.required' => 'A mensagem é obrigatória.',
-            'attachment_path.file' => 'O anexo deve ser um arquivo válido.',
-            'attachment_path.max' => 'O anexo não pode ser maior que 10MB.',
-        ]);
-
-        $interaction = new \App\Models\Interaction([
-            'user_id' => $request->user()->id,
-            'message' => $validated['message'],
-        ]);
-
-        if ($request->hasFile('attachment_path')) {
-            $path = $request->file('attachment_path')->store('attachments', 'public');
-            $interaction->attachment_path = $path;
-        }
-
-        $called->interactions()->save($interaction);
-
-        return response()->json([
-            'success' => true,
-            'interaction' => $interaction->load('user')
-        ], 201);
-    }
+//    public function storeInteraction(Request $request, Called $called)
+//    {
+//        $request->validate([
+//            'message' => 'nullable|string|max:1000',
+//            'file' => 'nullable|file|max:10240',
+//        ]);
+//
+//        if (!$request->filled('message') && !$request->hasFile('file')) {
+//            return response()->json([
+//                'message' => 'É necessário informar uma mensagem ou enviar um arquivo.',
+//            ], 422);
+//        }
+//
+//        $interaction = new Interaction();
+//        $interaction->called_id = $called->id;
+//        $interaction->user_id = $request->user()->id;
+//        $interaction->message = $request->message;
+//
+//        if ($request->hasFile('file')) {
+//            $path = $request->file('file')->store('interactions', 'public');
+//            $interaction->attachment_path = $path;
+//        }
+//
+//        $interaction->save();
+//
+//        return response()->json([
+//            'success' => true,
+//            'interaction' => $interaction->load('user'),
+//        ], 201);
+//    }
 }

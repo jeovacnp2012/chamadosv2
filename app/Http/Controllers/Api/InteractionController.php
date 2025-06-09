@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Called;
 use App\Models\Interaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class InteractionController extends Controller
 {
@@ -26,21 +27,18 @@ class InteractionController extends Controller
         $user = $request->user();
         $path = null;
 
-        // Diagnóstico para testar o envio
         if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $path = $file->store('interactions', 'public');
+            $path = $request->file('file')->store('interactions', 'public');
         }
 
         $interaction = $called->interactions()->create([
             'user_id' => $user->id,
             'message' => $request->input('message', ''),
-            'file_path' => $path,
+            'attachment_path' => $path, // ✅ Nome correto
         ]);
 
-        return response()->json([
-            'success' => true,
-            'data' => $interaction,
-        ]);
+        return response()->json(['success' => true, 'interaction' => $interaction->load('user')], 201);
     }
+
+
 }
