@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos adicionais com Tailwind puro, sem @apply */
+html, body {
+    background-color: #f3f4f6; /* bg-gray-100 */
+    color: #1f2937;           /* text-gray-800 */
+    margin: 0;
+    font-family: system-ui, sans-serif;
+}

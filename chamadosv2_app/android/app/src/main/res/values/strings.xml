@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">chamadosv2_app</string>
+    <string name="title_activity_main">chamadosv2_app</string>
+    <string name="package_name">com.jeova.chamadosv2_app</string>
+    <string name="custom_url_scheme">com.jeova.chamadosv2_app</string>
+</resources>

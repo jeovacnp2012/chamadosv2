@@ -25,6 +25,6 @@ class Interaction extends Model
     }
     public function getAttachmentUrlAttribute()
     {
-        return $this->file_path ? asset('storage/' . $this->file_path) : null;
+        return $this->attachment_path ? asset('storage/' . $this->attachment_path) : null;
     }
 }

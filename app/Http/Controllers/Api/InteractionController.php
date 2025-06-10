@@ -30,7 +30,12 @@ class InteractionController extends Controller
         if ($request->hasFile('file')) {
             $path = $request->file('file')->store('interactions', 'public');
         }
-
+        // ⬇️ INSIRA AQUI:
+        Log::info('Salvando interação', [
+            'user_id' => $user->id,
+            'message' => $request->input('message'),
+            'attachment_path' => $path,
+        ]);
         $interaction = $called->interactions()->create([
             'user_id' => $user->id,
             'message' => $request->input('message', ''),
