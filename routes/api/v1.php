@@ -10,7 +10,6 @@ Route::middleware('auth:sanctum')->get('/me', [\App\Http\Controllers\Api\AuthCon
 Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/calleds/{called}/interactions', [\App\Http\Controllers\Api\InteractionController::class, 'store']);
 Route::get('/calleds/{called}/interactions', [\App\Http\Controllers\Api\InteractionController::class, 'index']);
-
 Route::middleware('auth:sanctum')->group(function () {
 
     // 🔍 LISTAGEM já existe
