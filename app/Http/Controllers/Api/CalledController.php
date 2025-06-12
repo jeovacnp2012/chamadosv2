@@ -42,47 +42,93 @@ class CalledController extends Controller
             ],
         ]);
     }
+
     public function index(Request $request)
     {
         $user = $request->user();
+
+        \Log::info('=== INICIO DEBUG API ===');
+        \Log::info('API - Usuário e parâmetros recebidos:', [
+            'user_id' => $user->id,
+            'user_roles' => $user->getRoleNames(),
+            'todos_parametros' => $request->all(),
+            'status_recebido' => $request->get('status'),
+            'status_filled' => $request->filled('status'),
+            'query_string' => $request->getQueryString()
+        ]);
 
         $query = Called::query();
 
         // SUPER ADMIN vê tudo
         if ($user->hasRole('Super Admin')) {
-            // sem filtros
+            \Log::info('API - Super Admin: sem filtros de permissão');
         }
         // EXECUTOR vê apenas os chamados que ele executa
         elseif ($user->hasRole('Executor') && $user->supplier_id) {
+            \Log::info('API - Executor: filtrando por supplier_id', ['supplier_id' => $user->supplier_id]);
             $query->where('supplier_id', $user->supplier_id);
         }
         // Demais perfis → setores dos seus departamentos
         else {
+            $userSectors = collect($user->departaments)->flatMap->sectors->pluck('id');
+            \Log::info('API - Outros perfis: filtrando por setores', [
+                'company_id' => $user->company_id,
+                'sector_ids' => $userSectors->toArray()
+            ]);
             $query->where('company_id', $user->company_id)
-                ->whereIn('sector_id', collect($user->departaments)->flatMap->sectors->pluck('id'));
+                ->whereIn('sector_id', $userSectors);
         }
 
-        // Filtros opcionais via query string
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        // *** FILTRO PADRÃO: ABERTOS ***
+        $statusFilter = $request->get('status', 'A'); // Padrão é 'A' (Abertos)
 
+        \Log::info('API - Aplicando filtro de status', [
+            'status_solicitado' => $request->get('status'),
+            'status_aplicado' => $statusFilter
+        ]);
+
+        $query->where('status', $statusFilter);
+
+        // Outros filtros opcionais
         if ($request->filled('search')) {
+            \Log::info('API - Aplicando filtro de busca', ['search' => $request->search]);
             $query->where('protocol', 'like', '%' . $request->search . '%');
         }
 
         if ($request->filled('from') && $request->filled('to')) {
+            \Log::info('API - Aplicando filtro de data', [
+                'from' => $request->from,
+                'to' => $request->to
+            ]);
             $query->whereBetween('created_at', [$request->from, $request->to]);
         }
 
-        return $query->with([
+        // Log da query SQL antes de executar
+        \Log::info('API - Query SQL que será executada:', [
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings()
+        ]);
+
+        $results = $query->with([
             'user:id,name',
             'sector:id,name',
             'supplier:id,trade_name',
             'patrimony:id,tag',
             'interactions',
         ])->latest()->paginate(10);
+
+        \Log::info('API - Resultado da consulta:', [
+            'total_encontrado' => $results->total(),
+            'count_pagina_atual' => $results->count(),
+            'status_distribution' => $results->items() ? array_count_values(array_column($results->items(), 'status')) : [],
+            'primeiros_3_status' => array_slice(array_column($results->items(), 'status'), 0, 3),
+            'estrutura_primeiro_item' => $results->items() ? array_keys($results->items()[0]->toArray()) : []
+        ]);
+        \Log::info('=== FIM DEBUG API ===');
+
+        return $results;
     }
+
     public function show(Request $request, Called $called)
     {
         // 🔐 Verifica se o usuário tem acesso ao setor do chamado
@@ -110,6 +156,7 @@ class CalledController extends Controller
             'data' => $called,
         ]);
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate(
@@ -153,6 +200,7 @@ class CalledController extends Controller
             'data' => $called->load(['user', 'sector', 'supplier', 'calledType', 'patrimony']),
         ], 201);
     }
+
     public function update(Request $request, \App\Models\Called $called)
     {
         if (
@@ -211,6 +259,7 @@ class CalledController extends Controller
             'data'    => $called->load(['user', 'sector', 'supplier', 'patrimony']),
         ]);
     }
+
     public function destroy(Request $request, Called $called)
     {
         if (
@@ -234,34 +283,4 @@ class CalledController extends Controller
             'message' => 'Chamado excluído com sucesso.',
         ]);
     }
-//    public function storeInteraction(Request $request, Called $called)
-//    {
-//        $request->validate([
-//            'message' => 'nullable|string|max:1000',
-//            'file' => 'nullable|file|max:10240',
-//        ]);
-//
-//        if (!$request->filled('message') && !$request->hasFile('file')) {
-//            return response()->json([
-//                'message' => 'É necessário informar uma mensagem ou enviar um arquivo.',
-//            ], 422);
-//        }
-//
-//        $interaction = new Interaction();
-//        $interaction->called_id = $called->id;
-//        $interaction->user_id = $request->user()->id;
-//        $interaction->message = $request->message;
-//
-//        if ($request->hasFile('file')) {
-//            $path = $request->file('file')->store('interactions', 'public');
-//            $interaction->attachment_path = $path;
-//        }
-//
-//        $interaction->save();
-//
-//        return response()->json([
-//            'success' => true,
-//            'interaction' => $interaction->load('user'),
-//        ], 201);
-//    }
 }
