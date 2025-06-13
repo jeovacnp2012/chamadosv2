@@ -45,6 +45,23 @@ class CalledController extends Controller
 
     public function index(Request $request)
     {
+        \Log::info('=== DEBUG COMPLETO API ===', [
+            'timestamp' => now(),
+            'url_completa' => $request->fullUrl(),
+            'metodo' => $request->method(),
+            'path_info' => $request->getPathInfo(),
+            'query_string' => $request->getQueryString(),
+            'todos_params' => $request->all(),
+            'query_params' => $request->query(),
+            'input_all' => $request->input(),
+            'get_status' => $request->get('status'),
+            'query_status' => $request->query('status'),
+            'server_request_uri' => $request->server('REQUEST_URI'),
+            'headers_authorization' => $request->header('Authorization'),
+            'middleware_stack' => $request->route() ? $request->route()->middleware() : 'sem_route',
+            'route_parameters' => $request->route() ? $request->route()->parameters() : 'sem_route_params'
+        ]);
+
         $user = $request->user();
 
         \Log::info('=== INICIO DEBUG API ===');
@@ -52,9 +69,12 @@ class CalledController extends Controller
             'user_id' => $user->id,
             'user_roles' => $user->getRoleNames(),
             'todos_parametros' => $request->all(),
+            'query_todos' => $request->query(),
             'status_recebido' => $request->get('status'),
+            'status_query' => $request->query('status'),
             'status_filled' => $request->filled('status'),
-            'query_string' => $request->getQueryString()
+            'query_string' => $request->getQueryString(),
+            'url_completa' => $request->fullUrl()
         ]);
 
         $query = Called::query();
@@ -79,12 +99,29 @@ class CalledController extends Controller
                 ->whereIn('sector_id', $userSectors);
         }
 
-        // *** FILTRO PADRÃO: ABERTOS ***
-        $statusFilter = $request->get('status', 'A'); // Padrão é 'A' (Abertos)
+        // *** FILTRO DE STATUS - TESTANDO VÁRIAS FORMAS ***
+        $statusFromGet = $request->get('status');
+        $statusFromQuery = $request->query('status');
+        $statusFromInput = $request->input('status');
+        $statusFromAll = $request->all()['status'] ?? null;
+
+        \Log::info('API - TESTANDO MÚLTIPLAS FORMAS DE PEGAR STATUS:', [
+            'get_status' => $statusFromGet,
+            'query_status' => $statusFromQuery,
+            'input_status' => $statusFromInput,
+            'all_status' => $statusFromAll,
+            'filled_status' => $request->filled('status'),
+            'has_status' => $request->has('status'),
+            'exists_status' => $request->exists('status')
+        ]);
+
+        // Vamos usar uma abordagem mais robusta
+        $statusFilter = $statusFromGet ?? $statusFromQuery ?? $statusFromInput ?? $statusFromAll ?? 'A';
 
         \Log::info('API - Aplicando filtro de status', [
-            'status_solicitado' => $request->get('status'),
-            'status_aplicado' => $statusFilter
+            'status_solicitado_original' => $request->get('status'),
+            'status_final_aplicado' => $statusFilter,
+            'metodo_usado' => $statusFilter === 'A' ? 'padrao' : 'recebido'
         ]);
 
         $query->where('status', $statusFilter);
@@ -127,6 +164,48 @@ class CalledController extends Controller
         \Log::info('=== FIM DEBUG API ===');
 
         return $results;
+    }
+
+    /**
+     * Retorna totalizadores por status
+     */
+    public function totalizadores(Request $request)
+    {
+        $user = $request->user();
+        $query = Called::query();
+
+        // Aplicar mesmos filtros de permissão do index()
+        if ($user->hasRole('Super Admin')) {
+            // sem filtros
+        } elseif ($user->hasRole('Executor') && $user->supplier_id) {
+            $query->where('supplier_id', $user->supplier_id);
+        } else {
+            $userSectors = collect($user->departaments)->flatMap->sectors->pluck('id');
+            $query->where('company_id', $user->company_id)
+                ->whereIn('sector_id', $userSectors);
+        }
+
+        // Contar por status
+        $totais = $query->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        // Total geral
+        $totalGeral = $query->count();
+
+        \Log::info('API - Totalizadores calculados:', [
+            'totais_por_status' => $totais,
+            'total_geral' => $totalGeral
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'totais' => $totais,
+                'total_geral' => $totalGeral
+            ]
+        ]);
     }
 
     public function show(Request $request, Called $called)

@@ -6,17 +6,20 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Called;
 use App\Models\Interaction;
+
 Route::middleware('auth:sanctum')->get('/me', [\App\Http\Controllers\Api\AuthController::class, 'me']);
 Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/calleds/{called}/interactions', [\App\Http\Controllers\Api\InteractionController::class, 'store']);
 Route::get('/calleds/{called}/interactions', [\App\Http\Controllers\Api\InteractionController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
 
     // 🔍 LISTAGEM já existe
     Route::get('/calleds', [\App\Http\Controllers\Api\CalledController::class, 'index']);
 
-    // 👁️ VER UM REGISTRO
-//    Route::get('/calleds/{called}', [\App\Http\Controllers\Api\CalledController::class, 'show']);
+    // 📊 TOTALIZADORES
+    Route::get('/calleds/totalizadores', [\App\Http\Controllers\Api\CalledController::class, 'totalizadores']);
+
     // 👁️ VER UM REGISTRO ESPECIFICO COM OS SEUS RELACIONAMENTOS
     Route::get('/calleds/{called}', [\App\Http\Controllers\Api\CalledController::class, 'show']);
 
@@ -29,9 +32,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // ❌ DELETAR
     Route::delete('/calleds/{called}', [\App\Http\Controllers\Api\CalledController::class, 'destroy']);
 
-    //IMPLEMENTAR O UPLOAD DE ARQUIVOS
-    //Route::post('/calleds/{called}/interactions', [\App\Http\Controllers\Api\CalledController::class, 'storeInteraction']);
     Route::put('/profile/password', [\App\Http\Controllers\Api\AuthController::class, 'updatePassword']);
 
 });
-
