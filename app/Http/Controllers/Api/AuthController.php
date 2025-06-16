@@ -25,17 +25,32 @@ class AuthController extends Controller
     }
     public function login(Request $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'Credenciais inválidas'], 401);
+        $result = $this->apiService->login(
+            $request->email,
+            $request->password
+        );
+
+        if ($result['success']) {
+            session([
+                'user' => $result['data']['user'],
+                'api_token' => $result['token'],
+                'authenticated' => true,
+            ]);
+
+            return redirect()->intended('/dashboard')
+                ->with('success', 'Login realizado com sucesso!');
         }
 
-        return response()->json([
-            'token' => $user->createToken('app-token')->plainTextToken,
-            'user' => $user->load('roles'), // se estiver usando Spatie ou quiser roles no retorno
-        ]);
+        return redirect()->back()
+            ->withInput($request->only('email'))
+            ->with('error', $result['message'] ?? 'Erro ao autenticar');
     }
+
     public function updatePassword(Request $request)
     {
         $request->validate([
