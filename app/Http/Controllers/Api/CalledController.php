@@ -7,6 +7,7 @@ use App\Models\Called;
 use App\Models\Interaction;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class CalledController extends Controller
@@ -45,125 +46,29 @@ class CalledController extends Controller
 
     public function index(Request $request)
     {
-        \Log::info('=== DEBUG COMPLETO API ===', [
-            'timestamp' => now(),
-            'url_completa' => $request->fullUrl(),
-            'metodo' => $request->method(),
-            'path_info' => $request->getPathInfo(),
-            'query_string' => $request->getQueryString(),
-            'todos_params' => $request->all(),
-            'query_params' => $request->query(),
-            'input_all' => $request->input(),
-            'get_status' => $request->get('status'),
-            'query_status' => $request->query('status'),
-            'server_request_uri' => $request->server('REQUEST_URI'),
-            'headers_authorization' => $request->header('Authorization'),
-            'middleware_stack' => $request->route() ? $request->route()->middleware() : 'sem_route',
-            'route_parameters' => $request->route() ? $request->route()->parameters() : 'sem_route_params'
-        ]);
-
-        $user = $request->user();
-
-        \Log::info('=== INICIO DEBUG API ===');
-        \Log::info('API - Usuário e parâmetros recebidos:', [
-            'user_id' => $user->id,
-            'user_roles' => $user->getRoleNames(),
-            'todos_parametros' => $request->all(),
-            'query_todos' => $request->query(),
-            'status_recebido' => $request->get('status'),
-            'status_query' => $request->query('status'),
-            'status_filled' => $request->filled('status'),
-            'query_string' => $request->getQueryString(),
-            'url_completa' => $request->fullUrl()
-        ]);
+        $user = Auth::user();
 
         $query = Called::query();
 
-        // SUPER ADMIN vê tudo
-        if ($user->hasRole('Super Admin')) {
-            \Log::info('API - Super Admin: sem filtros de permissão');
-        }
-        // EXECUTOR vê apenas os chamados que ele executa
-        elseif ($user->hasRole('Executor') && $user->supplier_id) {
-            \Log::info('API - Executor: filtrando por supplier_id', ['supplier_id' => $user->supplier_id]);
-            $query->where('supplier_id', $user->supplier_id);
-        }
-        // Demais perfis → setores dos seus departamentos
-        else {
-            $userSectors = collect($user->departaments)->flatMap->sectors->pluck('id');
-            \Log::info('API - Outros perfis: filtrando por setores', [
-                'company_id' => $user->company_id,
-                'sector_ids' => $userSectors->toArray()
-            ]);
-            $query->where('company_id', $user->company_id)
-                ->whereIn('sector_id', $userSectors);
+        // Se não for Super Admin, filtra pelos setores do usuário
+        if (!$user->hasRole('Super Admin')) {
+            $setorIds = $user->setores->pluck('id')->toArray();
+            $query->whereIn('sector_id', $setorIds);
         }
 
-        // *** FILTRO DE STATUS - TESTANDO VÁRIAS FORMAS ***
-        $statusFromGet = $request->get('status');
-        $statusFromQuery = $request->query('status');
-        $statusFromInput = $request->input('status');
-        $statusFromAll = $request->all()['status'] ?? null;
+        // Aplicar filtros adicionais, se existirem
+        if ($request->has('status')) {
+            $query->where('status', $request->get('status'));
+        }
 
-        \Log::info('API - TESTANDO MÚLTIPLAS FORMAS DE PEGAR STATUS:', [
-            'get_status' => $statusFromGet,
-            'query_status' => $statusFromQuery,
-            'input_status' => $statusFromInput,
-            'all_status' => $statusFromAll,
-            'filled_status' => $request->filled('status'),
-            'has_status' => $request->has('status'),
-            'exists_status' => $request->exists('status')
+        if ($request->has('protocolo')) {
+            $query->where('protocolo', 'like', '%' . $request->get('protocolo') . '%');
+        }
+
+        // Retornar os chamados mais recentes
+        return response()->json([
+            'data' => $query->latest()->take(10)->get()
         ]);
-
-        // Vamos usar uma abordagem mais robusta
-        $statusFilter = $statusFromGet ?? $statusFromQuery ?? $statusFromInput ?? $statusFromAll ?? 'A';
-
-        \Log::info('API - Aplicando filtro de status', [
-            'status_solicitado_original' => $request->get('status'),
-            'status_final_aplicado' => $statusFilter,
-            'metodo_usado' => $statusFilter === 'A' ? 'padrao' : 'recebido'
-        ]);
-
-        $query->where('status', $statusFilter);
-
-        // Outros filtros opcionais
-        if ($request->filled('search')) {
-            \Log::info('API - Aplicando filtro de busca', ['search' => $request->search]);
-            $query->where('protocol', 'like', '%' . $request->search . '%');
-        }
-
-        if ($request->filled('from') && $request->filled('to')) {
-            \Log::info('API - Aplicando filtro de data', [
-                'from' => $request->from,
-                'to' => $request->to
-            ]);
-            $query->whereBetween('created_at', [$request->from, $request->to]);
-        }
-
-        // Log da query SQL antes de executar
-        \Log::info('API - Query SQL que será executada:', [
-            'sql' => $query->toSql(),
-            'bindings' => $query->getBindings()
-        ]);
-
-        $results = $query->with([
-            'user:id,name',
-            'sector:id,name',
-            'supplier:id,trade_name',
-            'patrimony:id,tag',
-            'interactions',
-        ])->latest()->paginate(10);
-
-        \Log::info('API - Resultado da consulta:', [
-            'total_encontrado' => $results->total(),
-            'count_pagina_atual' => $results->count(),
-            'status_distribution' => $results->items() ? array_count_values(array_column($results->items(), 'status')) : [],
-            'primeiros_3_status' => array_slice(array_column($results->items(), 'status'), 0, 3),
-            'estrutura_primeiro_item' => $results->items() ? array_keys($results->items()[0]->toArray()) : []
-        ]);
-        \Log::info('=== FIM DEBUG API ===');
-
-        return $results;
     }
 
     /**
