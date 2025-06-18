@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,8 @@ Route::middleware('auth:sanctum')->post('/calleds/{called}/interactions', [\App\
 Route::get('/calleds/{called}/interactions', [\App\Http\Controllers\Api\InteractionController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/chamados/contagem', [DashboardController::class, 'contagem']);
 
     // 🔍 LISTAGEM já existe
     Route::get('/calleds', [\App\Http\Controllers\Api\CalledController::class, 'index']);
