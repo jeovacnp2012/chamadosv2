@@ -1,198 +1,163 @@
 <div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow">
-
-    {{-- Info das Bases - APENAS ADICIONADO ISSO --}}
-    <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <h3 class="font-bold text-blue-800 text-sm">📤 ORIGEM (de onde vem)</h3>
-            <p class="text-xs text-blue-700">
-                <strong>Database:</strong> {{ config('database.connections.origem.database') }}
-            </p>
-        </div>
-        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
-            <h3 class="font-bold text-green-800 text-sm">📥 DESTINO (para onde vai)</h3>
-            <p class="text-xs text-green-700">
-                <strong>Database:</strong> {{ config('database.connections.destino.database') }}
-            </p>
-        </div>
-    </div>
-
     @if($step === 1)
-        <h2 class="text-2xl font-bold mb-4">Passo 1: Selecione as Tabelas</h2>
+        <h2 class="text-2xl font-bold mb-4">Passo 1: Faça upload dos arquivos Excel</h2>
         <form wire:submit.prevent="nextStep">
-            <div class="mb-4">
-                <label class="block font-bold mb-1">Tabelas disponíveis:</label>
-                <div class="grid grid-cols-2 gap-2">
-                    @foreach($tables as $key => $label)
-                        <label class="flex items-center">
-                            <input type="checkbox" wire:model="selectedTables" value="{{ $key }}" class="mr-2">
-                            {{ $label }}
-                        </label>
-                    @endforeach
+            <input type="file" wire:model="uploadedFiles" multiple accept=".xlsx,.xls" class="mb-4 block">
+            @error('uploadedFiles.*') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+            @if(count($uploadedFiles) > 0)
+                <div class="mb-4">
+                    <div class="font-bold">Arquivos detectados:</div>
+                    <ul class="list-disc pl-6 mt-2 text-sm">
+                        @foreach($uploadedFiles as $file)
+                            <li>{{ $file->getClientOriginalName() }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-            </div>
-            <div class="mb-4">
-                <label class="flex items-center">
-                    <input type="checkbox" wire:model="reset" class="mr-2">
-                    Zerar dados das tabelas selecionadas antes de importar
-                </label>
-            </div>
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Próximo</button>
-        </form>
-    @elseif($step === 2)
-        @php
-            $currentTable = $selectedTables[$tableStep ?? 0] ?? null;
-            $origFields = $tablesFields[$currentTable]['origem'] ?? [];
-            $destFields = $tablesFields[$currentTable]['destino'] ?? [];
-        @endphp
-
-        <h2 class="text-2xl font-bold mb-4">
-            Passo 2: Mapeamento de Campos - <span class="text-blue-700">{{ $currentTable }}</span>
-            ({{ ($tableStep ?? 0) + 1 }} de {{ count($selectedTables) }})
-        </h2>
-
-        <form wire:submit.prevent="nextStep">
-            @if(!$this->canProceedTable($currentTable))
-                <div class="p-2 bg-red-100 text-red-700 rounded mb-2 text-xs">
-                    Preencha todos os mapeamentos, evite duplicidade e aceite os tipos diferentes para avançar.
-                </div>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Próximo</button>
+                <button type="button" wire:click="resetUpload" class="ml-2 px-3 py-2 bg-gray-200 rounded">Limpar</button>
             @endif
+        </form>
+    @endif
 
+    @if($step === 2)
+        <h2 class="text-2xl font-bold mb-4">Passo 2: Selecione as tabelas a importar</h2>
+        <form wire:submit.prevent="nextStep">
             <div class="mb-4">
-                <table class="min-w-full border text-xs">
-                    <thead>
-                    <tr>
-                        <th class="border p-2">Campo Origem</th>
-                        <th class="border p-2">Tipo Origem</th>
-                        <th class="border p-2">Campo Destino</th>
-                        <th class="border p-2">Tipo Destino</th>
-                        <th class="border p-2">Tipo Diferente?</th>
-                        <th class="border p-2">Aceitar?</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($origFields as $field => $typeOrig)
-                        @php
-                            $destField = $fieldsMapping[$currentTable][$field] ?? '';
-                            $typeDest = $destFields[$destField] ?? '';
-                            $typeDiff = ($typeDest && $typeDest !== $typeOrig);
-                            $selectedThis = $fieldsMapping[$currentTable][$field] ?? '';
-                            $alreadyMapped = collect($fieldsMapping[$currentTable])->except($field)->values()->all();
-                        @endphp
-                        <tr>
-                            <td class="border p-2">{{ $field }}</td>
-                            <td class="border p-2">{{ $typeOrig }}</td>
-                            <td class="border p-2">
-                                <select wire:model="fieldsMapping.{{ $currentTable }}.{{ $field }}" class="border rounded px-2 py-1">
-                                    <option value="">Selecione</option>
-                                    @foreach($destFields as $destKey => $destType)
-                                        @if($selectedThis == $destKey || !in_array($destKey, $alreadyMapped))
-                                            <option value="{{ $destKey }}">{{ $destKey }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td class="border p-2">{{ $typeDest }}</td>
-                            <td class="border p-2">
-                                @if($typeDiff)
-                                    <span class="text-red-600 font-bold">Sim</span>
-                                @else
-                                    <span class="text-green-600">Não</span>
-                                @endif
-                            </td>
-                            <td class="border p-2 text-center">
-                                @if($typeDiff)
-                                    <input type="checkbox"
-                                           wire:model="fieldsTypeDiffs.{{ $currentTable }}.{{ $field }}.accept"
-                                    >
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-2 flex flex-wrap items-center gap-2">
-                @if(collect($fieldsTypeDiffs[$currentTable] ?? [])->filter(fn($x) => !($x['accept'] ?? false))->count())
-                    <label class="flex items-center gap-2 text-xs text-orange-700 font-bold">
-                        <input type="checkbox" wire:click="acceptAllTypesDiff('{{ $currentTable }}')">
-                        Aceitar todos os campos de tipo diferente desta tabela
+                @foreach($detectedTables as $table => $path)
+                    <label class="flex items-center">
+                        <input type="checkbox" wire:model="selectedTables" value="{{ $table }}" class="mr-2">
+                        {{ $table }}
                     </label>
-                @endif
-
-                <button type="button" wire:click="resetMapping('{{ $currentTable }}')" class="text-xs text-orange-700 underline">
-                    Resetar Mapeamento
-                </button>
-
-                <button type="button" wire:click="autoFixMapping('{{ $currentTable }}')" class="text-xs bg-green-600 text-white px-2 py-1 rounded">
-                    🔧 Corrigir Automaticamente
-                </button>
+                @endforeach
             </div>
-
-            <div class="flex gap-3 mt-6">
-                @if(($tableStep ?? 0) > 0)
-                    <button wire:click.prevent="prevStep" type="button" class="px-4 py-2 rounded bg-gray-300">Anterior</button>
-                @endif
-
-                <button type="submit"
-                        class="px-4 py-2 rounded bg-blue-600 text-white"
-                        @if(!$this->canProceedTable($currentTable)) disabled @endif
-                >
-                    {{ ($tableStep ?? 0) === count($selectedTables)-1 ? 'Confirmar Mapeamento' : 'Próximo' }}
-                </button>
-
-                {{-- Botão de debug temporário --}}
-                <button wire:click="debugStep2" type="button" class="px-3 py-2 rounded bg-red-500 text-white text-xs">
-                    Debug
-                </button>
+            <div class="flex gap-3">
+                <button wire:click.prevent="prevStep" type="button" class="px-4 py-2 rounded bg-gray-300">Voltar</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded" @if(count($selectedTables) == 0) disabled @endif>Próximo</button>
             </div>
         </form>
-    @elseif($step === 3)
-        <h2 class="text-2xl font-bold mb-4">Resumo do Mapeamento</h2>
-        @foreach($selectedTables as $table)
-            <div class="mb-4 border-b pb-3">
-                <strong class="block text-blue-700 mb-1">{{ $table }}</strong>
-                <table class="min-w-full border text-xs mb-2">
-                    <thead>
-                    <tr>
-                        <th class="border p-2">Campo Origem</th>
-                        <th class="border p-2">Campo Destino</th>
-                        <th class="border p-2">Tipo Origem</th>
-                        <th class="border p-2">Tipo Destino</th>
-                        <th class="border p-2">Tipo Aceito?</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($fieldsMapping[$table] ?? [] as $orig => $dest)
-                        @php
-                            $typeOrig = $tablesFields[$table]['origem'][$orig] ?? '';
-                            $typeDest = $tablesFields[$table]['destino'][$dest] ?? '';
-                            $typeDiff = ($typeDest && $typeDest !== $typeOrig);
-                            $accepted = $fieldsTypeDiffs[$table][$orig]['accept'] ?? false;
-                        @endphp
-                        <tr>
-                            <td class="border p-2">{{ $orig }}</td>
-                            <td class="border p-2">{{ $dest }}</td>
-                            <td class="border p-2">{{ $typeOrig }}</td>
-                            <td class="border p-2">{{ $typeDest }}</td>
-                            <td class="border p-2">
-                                @if($typeDiff)
-                                    @if($accepted)
-                                        <span class="text-green-700">Aceito</span>
-                                    @else
-                                        <span class="text-red-700">Não aceito</span>
-                                    @endif
-                                @else
-                                    <span class="text-gray-600">N/A</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endforeach
+    @endif
 
+    @if($step === 3)
+        @php $currentTable = $selectedTables[$tableStep] ?? null; @endphp
+        <h2 class="text-2xl font-bold mb-4">
+            Passo 3: Mapeamento dos Campos - <span class="text-blue-700">{{ $currentTable }}</span>
+            ({{ $tableStep + 1 }} de {{ count($selectedTables) }})
+        </h2>
+        @if($currentTable)
+            <form wire:submit.prevent="nextStep">
+                <div class="mb-4">
+                    <table class="min-w-full border text-xs">
+                        <thead>
+                        <tr>
+                            <th class="border p-2">Campo Origem</th>
+                            <th class="border p-2">Campo Destino</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($tablesFields[$currentTable]['origem'] ?? [] as $field => $typeOrig)
+                            @php
+                                $destFields = $tablesFields[$currentTable]['destino'] ?? [];
+                                $selectedThis = $fieldsMapping[$currentTable][$field] ?? '';
+                                $alreadyMapped = collect($fieldsMapping[$currentTable])->except($field)->values()->all();
+                            @endphp
+                            <tr>
+                                <td class="border p-2">{{ $field }}</td>
+                                <td class="border p-2">
+                                    <select wire:model="fieldsMapping.{{ $currentTable }}.{{ $field }}" class="border rounded px-2 py-1">
+                                        <option value="">Selecione</option>
+                                        @foreach($destFields as $destKey => $destType)
+                                            @if($selectedThis == $destKey || !in_array($destKey, $alreadyMapped))
+                                                <option value="{{ $destKey }}">{{ $destKey }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    @if($tableStep > 0)
+                        <button wire:click.prevent="prevStep" type="button" class="px-4 py-2 rounded bg-gray-300">Anterior</button>
+                    @endif
+                    <button type="submit"
+                            class="px-4 py-2 rounded bg-blue-600 text-white"
+                    >
+                        {{ $tableStep === count($selectedTables)-1 ? 'Confirmar Mapeamento' : 'Próximo' }}
+                    </button>
+                </div>
+            </form>
+        @endif
+    @endif
+
+    @if($step === 4)
+        <h2 class="text-2xl font-bold mb-4">Resumo e Execução da Migração</h2>
+
+        {{-- Análise de Duplicatas --}}
+        <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-semibold text-yellow-800">Análise de Duplicatas</h3>
+                <button wire:click="runDuplicateAnalysis" type="button"
+                        class="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700">
+                    Analisar
+                </button>
+            </div>
+
+            @if($duplicateAnalysis)
+                @php $totalDuplicates = array_sum(array_column($duplicateAnalysis, 'duplicate_count')); @endphp
+                @if($totalDuplicates > 0)
+                    <div class="bg-blue-50 border border-blue-200 rounded p-3 mb-3">
+                        <h4 class="font-semibold text-blue-800 mb-2">📝 Duplicatas Encontradas (serão renomeadas)</h4>
+                        @foreach($duplicateAnalysis as $table => $analysis)
+                            @if($analysis['duplicate_count'] > 0)
+                                <div class="mb-2">
+                                    <strong>{{ $table }}:</strong>
+                                    <ul class="text-sm text-blue-700 ml-4 list-disc">
+                                        <li>{{ $analysis['duplicate_count'] }} protocols duplicados</li>
+                                        <li>{{ $analysis['affected_rows'] }} registros receberão sufixos</li>
+                                        <li>{{ $analysis['total_rows'] }} registros serão migrados (nenhum será perdido)</li>
+                                    </ul>
+                                    <details class="mt-2">
+                                        <summary class="cursor-pointer text-sm text-blue-600 hover:text-blue-800">Ver como ficarão após sufixos</summary>
+                                        <div class="mt-2 bg-white p-2 rounded border text-xs">
+                                            @foreach($analysis['duplicates'] as $protocol => $info)
+                                                <div class="mb-1">
+                                                    <strong>{{ $protocol }}:</strong>
+                                                    {{ $info['count'] }} ocorrências →
+                                                    {{ implode(', ', $info['will_become']) }}
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </details>
+                                </div>
+                            @endif
+                        @endforeach
+                        <p class="text-sm text-blue-600 mt-2">
+                            <strong>Ação:</strong> Sufixos serão adicionados às duplicatas (Ex: CHAM2080-1, CHAM2080-2, etc.).
+                        </p>
+                    </div>
+                @else
+                    <div class="bg-green-50 border border-green-200 rounded p-3">
+                        <p class="text-green-800">✅ Nenhuma duplicata encontrada!</p>
+                    </div>
+                @endif
+            @else
+                <p class="text-gray-600 text-sm">Clique em "Analisar" para verificar duplicatas antes da migração.</p>
+            @endif
+        </div>
+
+        {{-- Resumo das Tabelas --}}
+        <div class="mb-4">
+            <div class="font-bold">Tabelas a serem migradas:</div>
+            <ul class="list-disc pl-6 mt-2 text-sm">
+                @foreach($selectedTables as $table)
+                    <li>{{ $table }}</li>
+                @endforeach
+            </ul>
+        </div>
+
+        {{-- Botões de Ação --}}
         <div class="flex gap-3 mt-6">
             <button wire:click="prevStep" type="button" class="px-4 py-2 rounded bg-gray-300">Voltar</button>
             <button wire:click="executeMigration" type="button" class="px-4 py-2 rounded bg-green-700 text-white"
@@ -205,6 +170,7 @@
             </button>
         </div>
 
+        {{-- Resultado da Migração --}}
         @if($migrationResult)
             <div class="mt-6 p-4 rounded bg-{{ $migrationResult['success'] ? 'green' : 'red' }}-100 text-{{ $migrationResult['success'] ? 'green' : 'red' }}-700 text-sm">
                 {!! nl2br(e($migrationResult['message'])) !!}
