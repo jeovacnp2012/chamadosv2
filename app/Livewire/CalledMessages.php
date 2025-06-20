@@ -107,15 +107,40 @@ class CalledMessages extends Component
 
     public function render()
     {
-        $baseQuery = $this->called->interactions()->with('user')->latest();
+        // Query base com eager loading forçado dos relacionamentos
+        $baseQuery = $this->called->interactions()
+            ->with([
+                'user' => function($query) {
+                    $query->with(['sectors', 'departaments']);
+                }
+            ])
+            ->latest();
+
+        // Para debug - vamos verificar se os dados estão sendo carregados
+        $recentMessages = $baseQuery->paginate(2);
+
+        // Log para debug (remover depois)
+        if (config('app.debug')) {
+            foreach ($recentMessages as $message) {
+                Log::info('Debug Message', [
+                    'user_id' => $message->user->id,
+                    'user_name' => $message->user->name,
+                    'sectors_count' => $message->user->sectors->count(),
+                    'departaments_count' => $message->user->departaments->count(),
+                    'sectors' => $message->user->sectors->pluck('name')->toArray(),
+                    'departaments' => $message->user->departaments->pluck('name')->toArray(),
+                ]);
+            }
+        }
 
         return view('livewire.called-messages', [
-            'recentMessages' => $baseQuery->paginate(2),
+            'recentMessages' => $recentMessages,
             'olderMessages' => $this->showMore
                 ? $baseQuery->skip(3)->paginate(10)
                 : collect(),
         ]);
     }
+
     public function deleteMessage($id)
     {
         $message = $this->called->interactions()->findOrFail($id);

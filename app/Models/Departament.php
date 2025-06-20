@@ -25,16 +25,23 @@ class Departament extends Model implements BelongsToCompanyInterface
     {
         return $this->belongsTo(Company::class);
     }
+
     public function address(): BelongsTo
     {
         return $this->belongsTo(Address::class);
     }
+
     public function sectors(): HasMany
     {
         return $this->hasMany(Sector::class);
     }
+
+    /**
+     * Relacionamento many-to-many com usuários
+     * CORRIGIDO: especificando o nome correto da tabela pivot
+     */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'departament_user', 'departament_id', 'user_id');
     }
 }

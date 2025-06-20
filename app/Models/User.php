@@ -30,6 +30,7 @@ class User extends Authenticatable implements BelongsToCompanyInterface
         'password',
         'company_id',
         'supplier_id',
+        'is_active',
     ];
 
 
@@ -55,29 +56,42 @@ class User extends Authenticatable implements BelongsToCompanyInterface
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relacionamento many-to-many com setores
+     * CORRIGIDO: especificando o nome correto da tabela pivot
+     */
     public function sectors(): BelongsToMany
     {
-        return $this->belongsToMany(Sector::class);
+        return $this->belongsToMany(Sector::class, 'sector_user', 'user_id', 'sector_id');
     }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
+
+    /**
+     * Relacionamento many-to-many com departamentos
+     * CORRIGIDO: especificando o nome correto da tabela pivot
+     */
     public function departaments(): BelongsToMany
     {
-        return $this->belongsToMany(Departament::class);
+        return $this->belongsToMany(Departament::class, 'departament_user', 'user_id', 'departament_id');
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
     public function hasRoleApi($role)
     {
         return $this->roles()->where('name', $role)->exists();
     }
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
-
 }

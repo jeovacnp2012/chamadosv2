@@ -277,15 +277,6 @@ class CalledResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('id', 'desc')
-            ->headerActions([
-//                Action::make('exportar')
-//                    ->label('Exportar Chamados')
-//                    ->icon('heroicon-o-document-arrow-down')
-//                    ->color('success')
-//                    ->link() // importante: gera um <a href="..."> com parâmetros atualizados
-//                    ->url(fn () => url('/exportar-chamados') . '?' . request()->getQueryString())
-//                    ->openUrlInNewTab(),
-            ])
             ->filters([
                 // Status
                 SelectFilter::make('status_aberto')
@@ -405,23 +396,17 @@ class CalledResource extends Resource
                 'sector' => fn($query) => $query->select('id', 'name'),
                 'supplier' => fn($query) => $query->select('id', 'trade_name')
             ]);
-
         $user = auth()->user();
-
-        // Super Admin vê tudo
         if ($user->hasRole('Super Admin')) {
             return $query;
         }
-
-        // Executor vê apenas chamados em que é executor
         if ($user->hasRole('Executor') && $user->supplier_id) {
             return $query->where('supplier_id', $user->supplier_id);
         }
-
-        // Demais perfis veem chamados dos setores dos seus departamentos
-        return $query->whereIn('sector_id', collect($user->departaments)
-            ->flatMap->sectors
-            ->pluck('id'));
+        // Admin e demais: setores dos departamentos
+        $departamentIds = $user->departaments()->pluck('id');
+        $sectorIds = \App\Models\Sector::whereIn('departament_id', $departamentIds)->pluck('id');
+        return $query->whereIn('sector_id', $sectorIds);
     }
 
     public static function getRelations(): array
